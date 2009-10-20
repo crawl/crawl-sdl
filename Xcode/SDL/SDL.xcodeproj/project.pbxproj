@@ -1674,13 +1674,13 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
-		003235501070931700C76517 /* Deployment_for_official_releases_using_10.4SDK_and_10.6SDK */ = {
+		003235501070931700C76517 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				DOXYGEN_EXE = /Applications/Doxygen.app/Contents/Resources/doxygen;
 				PRODUCT_NAME = "Generate Doxygen DocSet";
 			};
-			name = Deployment_for_official_releases_using_10.4SDK_and_10.6SDK;
+			name = Release;
 		};
 		003235511070931700C76517 /* Development_using_10.4SDK_and_10.6SDK */ = {
 			isa = XCBuildConfiguration;
@@ -1763,7 +1763,7 @@
 			};
 			name = Development_using_10.4SDK_and_10.6SDK;
 		};
-		0073177C0858DB0500B2BC32 /* Deployment_for_official_releases_using_10.4SDK_and_10.6SDK */ = {
+		0073177C0858DB0500B2BC32 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -1795,7 +1795,7 @@
 				PRODUCT_NAME = SDL;
 				WRAPPER_EXTENSION = framework;
 			};
-			name = Deployment_for_official_releases_using_10.4SDK_and_10.6SDK;
+			name = Release;
 		};
 		0073177D0858DB0500B2BC32 /* Default */ = {
 			isa = XCBuildConfiguration;
@@ -1860,7 +1860,7 @@
 			};
 			name = Development_using_10.4SDK_and_10.6SDK;
 		};
-		007317800858DB0500B2BC32 /* Deployment_for_official_releases_using_10.4SDK_and_10.6SDK */ = {
+		007317800858DB0500B2BC32 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -1888,7 +1888,7 @@
 				OTHER_CFLAGS_ppc = "";
 				PRODUCT_NAME = SDL;
 			};
-			name = Deployment_for_official_releases_using_10.4SDK_and_10.6SDK;
+			name = Release;
 		};
 		007317810858DB0500B2BC32 /* Default */ = {
 			isa = XCBuildConfiguration;
@@ -1927,12 +1927,12 @@
 			};
 			name = Development_using_10.4SDK_and_10.6SDK;
 		};
-		007317840858DB0500B2BC32 /* Deployment_for_official_releases_using_10.4SDK_and_10.6SDK */ = {
+		007317840858DB0500B2BC32 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				PRODUCT_NAME = SDLmain;
 			};
-			name = Deployment_for_official_releases_using_10.4SDK_and_10.6SDK;
+			name = Release;
 		};
 		007317850858DB0500B2BC32 /* Default */ = {
 			isa = XCBuildConfiguration;
@@ -1948,12 +1948,12 @@
 			};
 			name = Development_using_10.4SDK_and_10.6SDK;
 		};
-		007317880858DB0500B2BC32 /* Deployment_for_official_releases_using_10.4SDK_and_10.6SDK */ = {
+		007317880858DB0500B2BC32 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				PRODUCT_NAME = "Standard DMG";
 			};
-			name = Deployment_for_official_releases_using_10.4SDK_and_10.6SDK;
+			name = Release;
 		};
 		007317890858DB0500B2BC32 /* Default */ = {
 			isa = XCBuildConfiguration;
@@ -1969,12 +1969,12 @@
 			};
 			name = Development_using_10.4SDK_and_10.6SDK;
 		};
-		0073178C0858DB0500B2BC32 /* Deployment_for_official_releases_using_10.4SDK_and_10.6SDK */ = {
+		0073178C0858DB0500B2BC32 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				PRODUCT_NAME = "Developer Extras Package";
 			};
-			name = Deployment_for_official_releases_using_10.4SDK_and_10.6SDK;
+			name = Release;
 		};
 		0073178D0858DB0500B2BC32 /* Default */ = {
 			isa = XCBuildConfiguration;
@@ -2006,12 +2006,13 @@
 				SDKROOT_i386 = /Developer/SDKs/MacOSX10.4u.sdk;
 				SDKROOT_ppc = /Developer/SDKs/MacOSX10.4u.sdk;
 				SDKROOT_x86_64 = /Developer/SDKs/MacOSX10.6.sdk;
+				SYMROOT = "$(PROJECT_DIR)/../../../Frameworks";
 				WARNING_CFLAGS = "";
 				ZERO_LINK = NO;
 			};
 			name = Development_using_10.4SDK_and_10.6SDK;
 		};
-		007317900858DB0500B2BC32 /* Deployment_for_official_releases_using_10.4SDK_and_10.6SDK */ = {
+		007317900858DB0500B2BC32 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1)";
@@ -2037,10 +2038,11 @@
 				SDKROOT_x86_64 = /Developer/SDKs/MacOSX10.6.sdk;
 				SEPARATE_STRIP = YES;
 				STRIP_STYLE = "non-global";
+				SYMROOT = "$(PROJECT_DIR)/../../../Frameworks";
 				WARNING_CFLAGS = "";
 				ZERO_LINK = NO;
 			};
-			name = Deployment_for_official_releases_using_10.4SDK_and_10.6SDK;
+			name = Release;
 		};
 		007317910858DB0500B2BC32 /* Default */ = {
 			isa = XCBuildConfiguration;
@@ -2065,6 +2067,7 @@
 				SDKROOT_i386 = /Developer/SDKs/MacOSX10.4u.sdk;
 				SDKROOT_ppc = /Developer/SDKs/MacOSX10.4u.sdk;
 				SDKROOT_x86_64 = /Developer/SDKs/MacOSX10.6.sdk;
+				SYMROOT = "$(PROJECT_DIR)/../../../Frameworks";
 				WARNING_CFLAGS = "";
 				ZERO_LINK = NO;
 			};
@@ -2181,6 +2184,7 @@
 				SDKROOT_x86_64 = /Developer/SDKs/MacOSX10.6.sdk;
 				SEPARATE_STRIP = YES;
 				STRIP_STYLE = "non-global";
+				SYMROOT = "$(PROJECT_DIR)/../../../Frameworks";
 				WARNING_CFLAGS = "";
 				ZERO_LINK = NO;
 			};
@@ -2293,6 +2297,7 @@
 				SDKROOT_i386 = /Developer/SDKs/MacOSX10.4u.sdk;
 				SDKROOT_ppc = /Developer/SDKs/MacOSX10.4u.sdk;
 				SDKROOT_x86_64 = /Developer/SDKs/MacOSX10.6.sdk;
+				SYMROOT = "$(PROJECT_DIR)/../../../Frameworks";
 				WARNING_CFLAGS = "";
 				ZERO_LINK = NO;
 			};
@@ -2312,6 +2317,7 @@
 				PREBINDING = NO;
 				SEPARATE_STRIP = YES;
 				STRIP_STYLE = "non-global";
+				SYMROOT = "$(PROJECT_DIR)/../../../Frameworks";
 				WARNING_CFLAGS = "";
 				ZERO_LINK = NO;
 			};
@@ -2413,6 +2419,7 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				MACOSX_DEPLOYMENT_TARGET = "";
 				PREBINDING = NO;
+				SYMROOT = "$(PROJECT_DIR)/../../../Frameworks";
 				WARNING_CFLAGS = "";
 				ZERO_LINK = NO;
 			};
@@ -2508,7 +2515,7 @@
 		003235571070933500C76517 /* Build configuration list for PBXAggregateTarget "Generate Doxygen DocSet" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				003235501070931700C76517 /* Deployment_for_official_releases_using_10.4SDK_and_10.6SDK */,
+				003235501070931700C76517 /* Release */,
 				003235511070931700C76517 /* Development_using_10.4SDK_and_10.6SDK */,
 				003235521070931700C76517 /* Development_native_only */,
 				003235531070931700C76517 /* Deployment_native_only */,
@@ -2522,7 +2529,7 @@
 		0073177A0858DB0500B2BC32 /* Build configuration list for PBXNativeTarget "Framework" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				0073177C0858DB0500B2BC32 /* Deployment_for_official_releases_using_10.4SDK_and_10.6SDK */,
+				0073177C0858DB0500B2BC32 /* Release */,
 				0073177B0858DB0500B2BC32 /* Development_using_10.4SDK_and_10.6SDK */,
 				00CFA628106A568900758660 /* Development_native_only */,
 				00CFA622106A567900758660 /* Deployment_native_only */,
@@ -2536,7 +2543,7 @@
 		0073177E0858DB0500B2BC32 /* Build configuration list for PBXNativeTarget "Static Library" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				007317800858DB0500B2BC32 /* Deployment_for_official_releases_using_10.4SDK_and_10.6SDK */,
+				007317800858DB0500B2BC32 /* Release */,
 				0073177F0858DB0500B2BC32 /* Development_using_10.4SDK_and_10.6SDK */,
 				00CFA629106A568900758660 /* Development_native_only */,
 				00CFA623106A567900758660 /* Deployment_native_only */,
@@ -2550,7 +2557,7 @@
 		007317820858DB0500B2BC32 /* Build configuration list for PBXNativeTarget "Main Library" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				007317840858DB0500B2BC32 /* Deployment_for_official_releases_using_10.4SDK_and_10.6SDK */,
+				007317840858DB0500B2BC32 /* Release */,
 				007317830858DB0500B2BC32 /* Development_using_10.4SDK_and_10.6SDK */,
 				00CFA62A106A568900758660 /* Development_native_only */,
 				00CFA624106A567900758660 /* Deployment_native_only */,
@@ -2564,7 +2571,7 @@
 		007317860858DB0500B2BC32 /* Build configuration list for PBXNativeTarget "Standard DMG" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				007317880858DB0500B2BC32 /* Deployment_for_official_releases_using_10.4SDK_and_10.6SDK */,
+				007317880858DB0500B2BC32 /* Release */,
 				007317870858DB0500B2BC32 /* Development_using_10.4SDK_and_10.6SDK */,
 				00CFA62B106A568900758660 /* Development_native_only */,
 				00CFA625106A567900758660 /* Deployment_native_only */,
@@ -2578,7 +2585,7 @@
 		0073178A0858DB0500B2BC32 /* Build configuration list for PBXNativeTarget "Developer Extras Package" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				0073178C0858DB0500B2BC32 /* Deployment_for_official_releases_using_10.4SDK_and_10.6SDK */,
+				0073178C0858DB0500B2BC32 /* Release */,
 				0073178B0858DB0500B2BC32 /* Development_using_10.4SDK_and_10.6SDK */,
 				00CFA62C106A568900758660 /* Development_native_only */,
 				00CFA626106A567900758660 /* Deployment_native_only */,
@@ -2592,7 +2599,7 @@
 		0073178E0858DB0500B2BC32 /* Build configuration list for PBXProject "SDL" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				007317900858DB0500B2BC32 /* Deployment_for_official_releases_using_10.4SDK_and_10.6SDK */,
+				007317900858DB0500B2BC32 /* Release */,
 				0073178F0858DB0500B2BC32 /* Development_using_10.4SDK_and_10.6SDK */,
 				00CFA627106A568900758660 /* Development_native_only */,
 				00CFA621106A567900758660 /* Deployment_native_only */,
