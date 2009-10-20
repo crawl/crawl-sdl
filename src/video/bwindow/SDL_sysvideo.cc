@@ -1,6 +1,6 @@
 /*
     SDL - Simple DirectMedia Layer
-    Copyright (C) 1997-2006 Sam Lantinga
+    Copyright (C) 1997-2009 Sam Lantinga
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -358,16 +358,25 @@ static bool BE_FindClosestFSMode(_THIS, int width, int height, int bpp,
 	                  (current.timing.h_total * current.timing.v_total);
 
 	modes = SDL_modelist[((bpp+7)/8)-1];
-	for ( i=0; modes[i] && (modes[i]->w > width) &&
-		      (modes[i]->h > height); ++i ) {
-		/* still looking */
+	
+	// find end of list (lowest-resolution mode; modes are ordered
+	// highest-to-lowest).
+	i = 0; while(modes[i]) i++;
+	if (!i) return false;		// what? no modes at all?
+	
+	// find first mode with resolution >= requested in both dimensions
+	for (--i; i >= 0; --i)
+	{
+		if (modes[i]->w >= width && modes[i]->h >= height)
+			break;
 	}
-	if ( ! modes[i] || (modes[i]->w < width) || (modes[i]->h < width) ) {
-		--i;	/* We went too far */
-	}
-
+	
+	// unable to find any mode with that high a resolution!
+	if (i < 0)
+		return false;
+	
 	width = modes[i]->w;
-	height = modes[i]->h;      
+	height = modes[i]->h;
 
 	bscreen.GetModeList(&dmodes, &nmodes);
 	for ( i = 0; i < nmodes; ++i ) {
@@ -396,88 +405,88 @@ static bool BE_FindClosestFSMode(_THIS, int width, int height, int bpp,
 
 static int BE_SetFullScreen(_THIS, SDL_Surface *screen, int fullscreen)
 {
-	int was_fullscreen;
-	bool needs_unlock;
+	// printf("SetFullScreen(%d)\n", fullscreen);
 	BScreen bscreen;
-	BRect bounds;
-	display_mode mode;
-	int width, height, bpp;
 
-	/* Set the fullscreen mode */
-	was_fullscreen = SDL_Win->IsFullScreen();
-	SDL_Win->SetFullScreen(fullscreen);
-	fullscreen = SDL_Win->IsFullScreen();
+	// SetFullSscreen() does not work as expected if called in a window
+	// that was never shown. This is probably a bug in the Haiku Game Kit that needs
+	// to be investigated.	
+	if (SDL_Win->Lock()) {
+		// Show our window.
+		SDL_Win->Show();
+	}	
+	
+	if (SDL_Win->IsLocked()) {
+		// Unlock the window if it was locked. This is needed as only the
+		// first call to Show() unlocks the looper. All other calls to it
+		// will not.
+		SDL_Win->Unlock();
+	}
 
-	width = screen->w;
-	height = screen->h;
-
-	/* Set the appropriate video mode */
-	if ( fullscreen ) {
-		bpp = screen->format->BitsPerPixel;
+	int width = screen->w;
+	int height = screen->h;
+	
+	if (fullscreen) {
+		// Set resolution to the closest available one that matches the
+		// current SDL resolution.
+		display_mode mode;
 		bscreen.GetMode(&mode);
-		if ( (bpp != ColorSpaceToBitsPerPixel(mode.space)) ||
-		     (width != mode.virtual_width) ||
-		     (height != mode.virtual_height)) {
+
+		int bpp = screen->format->BitsPerPixel;
+		if (bpp != ColorSpaceToBitsPerPixel(mode.space) ||
+			width != mode.virtual_width || height != mode.virtual_height) {
 			if(BE_FindClosestFSMode(_this, width, height, bpp, &mode)) {
 				bscreen.SetMode(&mode);
-				/* This simply stops the next resize event from being
-				 * sent to the SDL handler.
-				 */
-				SDL_Win->InhibitResize();
 			} else {
-				fullscreen = 0;
-				SDL_Win->SetFullScreen(fullscreen);
-			}
+				// printf("Could not set new mode.\n");
+				return(0);
+			}			
 		}
+	} else {
+		// Reset to the previous known resolution as we are now in window
+		// mode.
+		bscreen.SetMode(&saved_mode);	
 	}
-	if ( was_fullscreen && ! fullscreen ) {
-		bscreen.SetMode(&saved_mode);
-	}
-
-	if ( SDL_Win->Lock() ) {
-		int cx, cy;
-		if ( SDL_Win->Shown() ) {
-			needs_unlock = 1;
-			SDL_Win->Hide();
-		} else {
-			needs_unlock = 0;
-		}
-		/* This resizes the window and view area, but inhibits resizing
-		 * of the BBitmap due to the InhibitResize call above. Thus the
-		 * bitmap (pixel data) never changes.
-		 */
+	
+	// Effectivelly set/reset full screen mode. If we are already in
+	// full screen mode, we reset back to windowed mode first so the
+	// window can resize when going fullscreen.
+	// if (fullscreen)
+		// printf("Going fullscreen\n");
+	// else
+		// printf("Going windowed\n"); 
+	SDL_Win->SetFullScreen(fullscreen);
+	
+	// Calculate offsets for centering the window (in window mode) and for
+	// dentering the bitmap (in full screen mode).
+	BRect bounds = bscreen.Frame();
+	bounds.PrintToStream();
+	int32 cx = (bounds.IntegerWidth() - width)/2;
+	int32 cy = (bounds.IntegerHeight() - height)/2;
+	
+	// printf ("cx = %d, cy = %d\n", cx, cy);
+	if (!SDL_Win->IsFullScreen()) {
+		// printf("Doing not fullscreen stuff.\n");
+		// We are not in full screen mode, so we want to change the window
+		// size to match the resolution in SDL.
 		SDL_Win->ResizeTo(width, height);
-		bounds = bscreen.Frame();
-		/* Calculate offsets - used either to center window
-		 * (windowed mode) or to set drawing offsets (fullscreen mode)
-		 */
-		cx = (bounds.IntegerWidth() - width)/2;
-		cy = (bounds.IntegerHeight() - height)/2;
-
-		if ( fullscreen ) {
-			/* Set offset for drawing */
-			SDL_Win->SetXYOffset(cx, cy);
-		} else {
-			SDL_Win->SetXYOffset(0, 0);
-		}
-		if ( ! needs_unlock || was_fullscreen ) {
-			/* Center the window the first time */
-			SDL_Win->MoveTo(cx, cy);
-		}
-		SDL_Win->Show();
 		
-		/* Unlock the window manually after the first Show() */
-		if ( needs_unlock ) {
-			SDL_Win->Unlock();
-		}
+		// And also center the window and reset the drawing offset.
+		SDL_Win->MoveTo(cx, cy);
+		SDL_Win->SetXYOffset(0, 0);
+	} else {
+		// printf("Doing fullscreen stuff.");
+		// Center the bitmap whenever we are in full screen mode.
+		SDL_Win->SetXYOffset(cx, cy);
 	}
-
-	/* Set the fullscreen flag in the screen surface */
-	if ( fullscreen ) {
+	
+	// Set relevant internal SDL screen flags.
+	if (SDL_Win->IsFullScreen()) {
 		screen->flags |= SDL_FULLSCREEN;
 	} else {
 		screen->flags &= ~SDL_FULLSCREEN; 
 	}
+
 	return(1);
 }
 
@@ -637,8 +646,12 @@ int BE_GL_LoadLibrary(_THIS, const char *path)
 			int32 cookie = 0;
 			while (get_next_image_info(0,&cookie,&info) == B_OK) {
 				void *location = NULL;
-				if (get_image_symbol((image_id)cookie,"glBegin",B_SYMBOL_TYPE_ANY,&location) == B_OK) {
-					_this->gl_config.dll_handle = (void*)cookie;
+#ifdef __HAIKU__
+				if (get_image_symbol(info.id,"glBegin",B_SYMBOL_TYPE_ANY,&location) == B_OK) { // This is how it actually works in Haiku
+#else
+				if (get_image_symbol((image_id)cookie,"glBegin",B_SYMBOL_TYPE_ANY,&location) == B_OK) { // I don't know if that *did* work in BeOS
+#endif
+					_this->gl_config.dll_handle = (void*)info.id;
 					_this->gl_config.driver_loaded = 1;
 					SDL_strlcpy(_this->gl_config.driver_path, "libGL.so", SDL_arraysize(_this->gl_config.driver_path));
 				}

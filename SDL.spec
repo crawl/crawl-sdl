@@ -1,6 +1,6 @@
 Summary: Simple DirectMedia Layer
 Name: SDL
-Version: 1.2.13
+Version: 1.2.14
 Release: 1
 Source: http://www.libsdl.org/release/%{name}-%{version}.tar.gz
 URL: http://www.libsdl.org/

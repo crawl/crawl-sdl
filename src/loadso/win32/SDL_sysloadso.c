@@ -1,6 +1,6 @@
 /*
     SDL - Simple DirectMedia Layer
-    Copyright (C) 1997-2006 Sam Lantinga
+    Copyright (C) 1997-2009 Sam Lantinga
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -93,7 +93,7 @@ void *SDL_LoadFunction(void *handle, const char *name)
 	wchar_t *name_t = SDL_malloc((length + 1) * sizeof(wchar_t));
 	wchar_t *errbuf_t = SDL_malloc(512 * sizeof(wchar_t));
 
-	MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, name, -1, name_t, length);
+	MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, name, -1, name_t, length+1);
 
 	symbol = (void *)GetProcAddress((HMODULE)handle, name_t);
 	if ( symbol == NULL ) {

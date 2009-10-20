@@ -1,6 +1,6 @@
 /*
     SDL - Simple DirectMedia Layer
-    Copyright (C) 1997-2006 Sam Lantinga
+    Copyright (C) 1997-2009 Sam Lantinga
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -378,4 +378,21 @@ void SDL_BWin::DispatchMessage(BMessage *msg, BHandler *target)
 			break;
 	}
 	BDirectWindow::DispatchMessage(msg, target);
+}
+
+void SDL_BWin::DirectConnected(direct_buffer_info *info) {
+	switch (info->buffer_state & B_DIRECT_MODE_MASK) {
+		case B_DIRECT_START:
+		case B_DIRECT_MODIFY:
+			{
+				int32 width = info->window_bounds.right -
+					info->window_bounds.left + 1;
+				int32 height = info->window_bounds.bottom -
+					info->window_bounds.top + 1;
+				SDL_PrivateResize(width, height);
+				break;
+			}
+		default:
+			break;
+	}
 }

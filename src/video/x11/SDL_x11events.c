@@ -1,6 +1,6 @@
 /*
     SDL - Simple DirectMedia Layer
-    Copyright (C) 1997-2006 Sam Lantinga
+    Copyright (C) 1997-2009 Sam Lantinga
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -423,15 +423,12 @@ printf("Mode: NotifyGrab\n");
 if ( xevent.xcrossing.mode == NotifyUngrab )
 printf("Mode: NotifyUngrab\n");
 #endif
-		if ( (xevent.xcrossing.mode != NotifyGrab) &&
-		     (xevent.xcrossing.mode != NotifyUngrab) ) {
-			if ( this->input_grab == SDL_GRAB_OFF ) {
-				posted = SDL_PrivateAppActive(1, SDL_APPMOUSEFOCUS);
-			}
-			posted = SDL_PrivateMouseMotion(0, 0,
-					xevent.xcrossing.x,
-					xevent.xcrossing.y);
+		if ( this->input_grab == SDL_GRAB_OFF ) {
+			posted = SDL_PrivateAppActive(1, SDL_APPMOUSEFOCUS);
 		}
+		posted = SDL_PrivateMouseMotion(0, 0,
+				xevent.xcrossing.x,
+				xevent.xcrossing.y);
 	    }
 	    break;
 
@@ -444,9 +441,7 @@ printf("Mode: NotifyGrab\n");
 if ( xevent.xcrossing.mode == NotifyUngrab )
 printf("Mode: NotifyUngrab\n");
 #endif
-		if ( (xevent.xcrossing.mode != NotifyGrab) &&
-		     (xevent.xcrossing.mode != NotifyUngrab) &&
-		     (xevent.xcrossing.detail != NotifyInferior) ) {
+		if ( xevent.xcrossing.detail != NotifyInferior ) {
 			if ( this->input_grab == SDL_GRAB_OFF ) {
 				posted = SDL_PrivateAppActive(0, SDL_APPMOUSEFOCUS);
 			} else {
@@ -920,6 +915,16 @@ void X11_PumpEvents(_THIS)
 {
 	int pending;
 
+	/* Update activity every five seconds to prevent screensaver. --ryan. */
+	if (!allow_screensaver) {
+		static Uint32 screensaverTicks;
+		Uint32 nowTicks = SDL_GetTicks();
+		if ((nowTicks - screensaverTicks) > 5000) {
+			XResetScreenSaver(SDL_Display);
+			screensaverTicks = nowTicks;
+		}
+	}
+
 	/* Keep processing pending events */
 	pending = 0;
 	while ( X11_Pending(SDL_Display) ) {
@@ -1389,67 +1394,3 @@ void X11_InitOSKeymap(_THIS)
 	X11_InitKeymap();
 }
 
-void X11_SaveScreenSaver(Display *display, int *saved_timeout, BOOL *dpms)
-{
-	int timeout, interval, prefer_blank, allow_exp;
-	XGetScreenSaver(display, &timeout, &interval, &prefer_blank, &allow_exp);
-	*saved_timeout = timeout;
-
-#if SDL_VIDEO_DRIVER_X11_DPMS
-	if ( SDL_X11_HAVE_DPMS ) {
-		int dummy;
-	  	if ( DPMSQueryExtension(display, &dummy, &dummy) ) {
-			CARD16 state;
-			DPMSInfo(display, &state, dpms);
-		}
-	}
-#else
-	*dpms = 0;
-#endif /* SDL_VIDEO_DRIVER_X11_DPMS */
-}
-
-void X11_DisableScreenSaver(_THIS, Display *display)
-{
-	int timeout, interval, prefer_blank, allow_exp;
-
-	if (this->hidden->allow_screensaver) {
-		return;
-	}
-
-	XGetScreenSaver(display, &timeout, &interval, &prefer_blank, &allow_exp);
-	timeout = 0;
-	XSetScreenSaver(display, timeout, interval, prefer_blank, allow_exp);
-
-#if SDL_VIDEO_DRIVER_X11_DPMS
-	if ( SDL_X11_HAVE_DPMS ) {
-		int dummy;
-	  	if ( DPMSQueryExtension(display, &dummy, &dummy) ) {
-			DPMSDisable(display);
-		}
-	}
-#endif /* SDL_VIDEO_DRIVER_X11_DPMS */
-}
-
-void X11_RestoreScreenSaver(_THIS, Display *display, int saved_timeout, BOOL dpms)
-{
-	int timeout, interval, prefer_blank, allow_exp;
-
-	if (this->hidden->allow_screensaver) {
-		return;
-	}
-
-	XGetScreenSaver(display, &timeout, &interval, &prefer_blank, &allow_exp);
-	timeout = saved_timeout;
-	XSetScreenSaver(display, timeout, interval, prefer_blank, allow_exp);
-
-#if SDL_VIDEO_DRIVER_X11_DPMS
-	if ( SDL_X11_HAVE_DPMS ) {
-		int dummy;
-	  	if ( DPMSQueryExtension(display, &dummy, &dummy) ) {
-			if ( dpms ) {
-				DPMSEnable(display);
-			}
-		}
-	}
-#endif /* SDL_VIDEO_DRIVER_X11_DPMS */
-}

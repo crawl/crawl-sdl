@@ -1,6 +1,6 @@
 /*
     SDL - Simple DirectMedia Layer
-    Copyright (C) 1997-2007 Sam Lantinga
+    Copyright (C) 1997-2009 Sam Lantinga
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -18,7 +18,7 @@
 
     Stéphan Kochen
     stephan@kochen.nl
-    
+
     Based on parts of the ALSA and ESounD output drivers.
 */
 #include "SDL_config.h"
@@ -29,6 +29,7 @@
 #include <unistd.h>
 #include <signal.h>
 #include <errno.h>
+#include <pulse/pulseaudio.h>
 #include <pulse/simple.h>
 
 #include "SDL_timer.h"
@@ -54,6 +55,7 @@ static void PULSE_WaitAudio(_THIS);
 static void PULSE_PlayAudio(_THIS);
 static Uint8 *PULSE_GetAudioBuf(_THIS);
 static void PULSE_CloseAudio(_THIS);
+static void PULSE_WaitDone(_THIS);
 
 #ifdef SDL_AUDIO_DRIVER_PULSE_DYNAMIC
 
@@ -73,19 +75,44 @@ static pa_simple* (*SDL_NAME(pa_simple_new))(
 	int *error
 );
 static void (*SDL_NAME(pa_simple_free))(pa_simple *s);
-static int (*SDL_NAME(pa_simple_drain))(pa_simple *s, int *error);
-static int (*SDL_NAME(pa_simple_write))(
-	pa_simple *s,
-	const void *data,
-	size_t length,
-	int *error 
-);
+
 static pa_channel_map* (*SDL_NAME(pa_channel_map_init_auto))(
 	pa_channel_map *m,
 	unsigned channels,
 	pa_channel_map_def_t def
 );
-	
+
+pa_mainloop * (*SDL_NAME(pa_mainloop_new))(void);
+pa_mainloop_api * (*SDL_NAME(pa_mainloop_get_api))(pa_mainloop *m);
+int (*SDL_NAME(pa_mainloop_iterate))(pa_mainloop *m, int block, int *retval);
+void (*SDL_NAME(pa_mainloop_free))(pa_mainloop *m);
+
+pa_operation_state_t (*SDL_NAME(pa_operation_get_state))(pa_operation *o);
+void (*SDL_NAME(pa_operation_cancel))(pa_operation *o);
+void (*SDL_NAME(pa_operation_unref))(pa_operation *o);
+
+pa_context * (*SDL_NAME(pa_context_new))(
+	pa_mainloop_api *m, const char *name);
+int (*SDL_NAME(pa_context_connect))(
+	pa_context *c, const char *server,
+	pa_context_flags_t flags, const pa_spawn_api *api);
+pa_context_state_t (*SDL_NAME(pa_context_get_state))(pa_context *c);
+void (*SDL_NAME(pa_context_disconnect))(pa_context *c);
+void (*SDL_NAME(pa_context_unref))(pa_context *c);
+
+pa_stream * (*SDL_NAME(pa_stream_new))(pa_context *c,
+	const char *name, const pa_sample_spec *ss, const pa_channel_map *map);
+int (*SDL_NAME(pa_stream_connect_playback))(pa_stream *s, const char *dev,
+	const pa_buffer_attr *attr, pa_stream_flags_t flags,
+	pa_cvolume *volume, pa_stream *sync_stream);
+pa_stream_state_t (*SDL_NAME(pa_stream_get_state))(pa_stream *s);
+size_t (*SDL_NAME(pa_stream_writable_size))(pa_stream *s);
+int (*SDL_NAME(pa_stream_write))(pa_stream *s, const void *data, size_t nbytes,
+	pa_free_cb_t free_cb, int64_t offset, pa_seek_mode_t seek);
+pa_operation * (*SDL_NAME(pa_stream_drain))(pa_stream *s,
+	pa_stream_success_cb_t cb, void *userdata);
+int (*SDL_NAME(pa_stream_disconnect))(pa_stream *s);
+void (*SDL_NAME(pa_stream_unref))(pa_stream *s);
 
 static struct {
 	const char *name;
@@ -95,12 +122,48 @@ static struct {
 		(void **)&SDL_NAME(pa_simple_new)		},
 	{ "pa_simple_free",
 		(void **)&SDL_NAME(pa_simple_free)		},
-	{ "pa_simple_drain",
-		(void **)&SDL_NAME(pa_simple_drain)		},
-	{ "pa_simple_write",
-		(void **)&SDL_NAME(pa_simple_write)		},
 	{ "pa_channel_map_init_auto",
 		(void **)&SDL_NAME(pa_channel_map_init_auto)	},
+	{ "pa_mainloop_new",
+		(void **)&SDL_NAME(pa_mainloop_new)		},
+	{ "pa_mainloop_get_api",
+		(void **)&SDL_NAME(pa_mainloop_get_api)		},
+	{ "pa_mainloop_iterate",
+		(void **)&SDL_NAME(pa_mainloop_iterate)		},
+	{ "pa_mainloop_free",
+		(void **)&SDL_NAME(pa_mainloop_free)		},
+	{ "pa_operation_get_state",
+		(void **)&SDL_NAME(pa_operation_get_state)	},
+	{ "pa_operation_cancel",
+		(void **)&SDL_NAME(pa_operation_cancel)		},
+	{ "pa_operation_unref",
+		(void **)&SDL_NAME(pa_operation_unref)		},
+	{ "pa_context_new",
+		(void **)&SDL_NAME(pa_context_new)		},
+	{ "pa_context_connect",
+		(void **)&SDL_NAME(pa_context_connect)		},
+	{ "pa_context_get_state",
+		(void **)&SDL_NAME(pa_context_get_state)	},
+	{ "pa_context_disconnect",
+		(void **)&SDL_NAME(pa_context_disconnect)	},
+	{ "pa_context_unref",
+		(void **)&SDL_NAME(pa_context_unref)		},
+	{ "pa_stream_new",
+		(void **)&SDL_NAME(pa_stream_new)		},
+	{ "pa_stream_connect_playback",
+		(void **)&SDL_NAME(pa_stream_connect_playback)	},
+	{ "pa_stream_get_state",
+		(void **)&SDL_NAME(pa_stream_get_state)		},
+	{ "pa_stream_writable_size",
+		(void **)&SDL_NAME(pa_stream_writable_size)	},
+	{ "pa_stream_write",
+		(void **)&SDL_NAME(pa_stream_write)		},
+	{ "pa_stream_drain",
+		(void **)&SDL_NAME(pa_stream_drain)		},
+	{ "pa_stream_disconnect",
+		(void **)&SDL_NAME(pa_stream_disconnect)	},
+	{ "pa_stream_unref",
+		(void **)&SDL_NAME(pa_stream_unref)		},
 };
 
 static void UnloadPulseLibrary()
@@ -158,16 +221,16 @@ static int Audio_Available(void)
 	if ( LoadPulseLibrary() < 0 ) {
 		return available;
 	}
-	
+
 	/* Connect with a dummy format. */
 	paspec.format = PA_SAMPLE_U8;
 	paspec.rate = 11025;
 	paspec.channels = 1;
 	connection = SDL_NAME(pa_simple_new)(
-		SDL_getenv("PASERVER"),      /* server */
+		NULL,                        /* server */
 		"Test stream",               /* application name */
 		PA_STREAM_PLAYBACK,          /* playback mode */
-		SDL_getenv("PADEVICE"),      /* device on the server */
+		NULL,                        /* device on the server */
 		"Simple DirectMedia Layer",  /* stream description */
 		&paspec,                     /* sample format spec */
 		NULL,                        /* channel map */
@@ -178,7 +241,7 @@ static int Audio_Available(void)
 		available = 1;
 		SDL_NAME(pa_simple_free)(connection);
 	}
-	
+
 	UnloadPulseLibrary();
 	return(available);
 }
@@ -217,6 +280,7 @@ static SDL_AudioDevice *Audio_CreateDevice(int devindex)
 	this->PlayAudio = PULSE_PlayAudio;
 	this->GetAudioBuf = PULSE_GetAudioBuf;
 	this->CloseAudio = PULSE_CloseAudio;
+	this->WaitDone = PULSE_WaitDone;
 
 	this->free = Audio_DeleteDevice;
 
@@ -231,26 +295,25 @@ AudioBootStrap PULSE_bootstrap = {
 /* This function waits until it is possible to write a full sound buffer */
 static void PULSE_WaitAudio(_THIS)
 {
-	/* Check to see if the thread-parent process is still alive */
-	{ static int cnt = 0;
-		/* Note that this only works with thread implementations 
-		   that use a different process id for each thread.
-		*/
-		if (parent && (((++cnt)%10) == 0)) { /* Check every 10 loops */
-			if ( kill(parent, 0) < 0 ) {
-				this->enabled = 0;
-			}
+	int size;
+	while(1) {
+		if (SDL_NAME(pa_context_get_state)(context) != PA_CONTEXT_READY ||
+		    SDL_NAME(pa_stream_get_state)(stream) != PA_STREAM_READY ||
+		    SDL_NAME(pa_mainloop_iterate)(mainloop, 1, NULL) < 0) {
+			this->enabled = 0;
+			return;
 		}
+		size = SDL_NAME(pa_stream_writable_size)(stream);
+		if (size >= mixlen)
+			return;
 	}
 }
 
 static void PULSE_PlayAudio(_THIS)
 {
 	/* Write the audio data */
-	if ( SDL_NAME(pa_simple_write)(stream, mixbuf, mixlen, NULL) != 0 )
-	{
+	if (SDL_NAME(pa_stream_write)(stream, mixbuf, mixlen, NULL, 0LL, PA_SEEK_RELATIVE) < 0)
 		this->enabled = 0;
-	}
 }
 
 static Uint8 *PULSE_GetAudioBuf(_THIS)
@@ -265,17 +328,26 @@ static void PULSE_CloseAudio(_THIS)
 		mixbuf = NULL;
 	}
 	if ( stream != NULL ) {
-		SDL_NAME(pa_simple_drain)(stream, NULL);
-		SDL_NAME(pa_simple_free)(stream);
+		SDL_NAME(pa_stream_disconnect)(stream);
+		SDL_NAME(pa_stream_unref)(stream);
 		stream = NULL;
+	}
+	if (context != NULL) {
+		SDL_NAME(pa_context_disconnect)(context);
+		SDL_NAME(pa_context_unref)(context);
+		context = NULL;
+	}
+	if (mainloop != NULL) {
+		SDL_NAME(pa_mainloop_free)(mainloop);
+		mainloop = NULL;
 	}
 }
 
 /* Try to get the name of the program */
 static char *get_progname(void)
 {
-	char *progname = NULL;
 #ifdef __LINUX__
+	char *progname = NULL;
 	FILE *fp;
 	static char temp[BUFSIZ];
 
@@ -292,17 +364,45 @@ static char *get_progname(void)
 		}
 		fclose(fp);
 	}
-#endif
 	return(progname);
+#elif defined(__NetBSD__)
+	return getprogname();
+#else
+	return("unknown");
+#endif
+}
+
+static void stream_drain_complete(pa_stream *s, int success, void *userdata) {
+}
+
+static void PULSE_WaitDone(_THIS)
+{
+	pa_operation *o;
+
+	o = SDL_NAME(pa_stream_drain)(stream, stream_drain_complete, NULL);
+	if (!o)
+		return;
+
+	while (SDL_NAME(pa_operation_get_state)(o) != PA_OPERATION_DONE) {
+		if (SDL_NAME(pa_context_get_state)(context) != PA_CONTEXT_READY ||
+		    SDL_NAME(pa_stream_get_state)(stream) != PA_STREAM_READY ||
+		    SDL_NAME(pa_mainloop_iterate)(mainloop, 1, NULL) < 0) {
+			SDL_NAME(pa_operation_cancel)(o);
+			break;
+		}
+	}
+	SDL_NAME(pa_operation_unref)(o);
 }
 
 static int PULSE_OpenAudio(_THIS, SDL_AudioSpec *spec)
 {
+	int             state;
 	Uint16          test_format;
 	pa_sample_spec  paspec;
 	pa_buffer_attr  paattr;
 	pa_channel_map  pacmap;
-	
+	pa_stream_flags_t flags = 0;
+
 	paspec.format = PA_SAMPLE_INVALID;
 	for ( test_format = SDL_FirstAudioFormat(spec->format); test_format; ) {
 		switch ( test_format ) {
@@ -324,11 +424,14 @@ static int PULSE_OpenAudio(_THIS, SDL_AudioSpec *spec)
 		return(-1);
 	}
 	spec->format = test_format;
-	
+
 	paspec.channels = spec->channels;
 	paspec.rate = spec->freq;
 
 	/* Calculate the final parameters for this audio specification */
+#ifdef PA_STREAM_ADJUST_LATENCY
+	spec->samples /= 2; /* Mix in smaller chunck to avoid underruns */
+#endif
 	SDL_CalculateAudioSpec(spec);
 
 	/* Allocate mixing buffer */
@@ -338,40 +441,94 @@ static int PULSE_OpenAudio(_THIS, SDL_AudioSpec *spec)
 		return(-1);
 	}
 	SDL_memset(mixbuf, spec->silence, spec->size);
-	
+
 	/* Reduced prebuffering compared to the defaults. */
-	paattr.tlength = mixlen;
+#ifdef PA_STREAM_ADJUST_LATENCY
+	paattr.tlength = mixlen * 4; /* 2x original requested bufsize */
+	paattr.prebuf = -1;
+	paattr.maxlength = -1;
+	paattr.minreq = mixlen; /* -1 can lead to pa_stream_writable_size()
+				   >= mixlen never becoming true */
+	flags = PA_STREAM_ADJUST_LATENCY;
+#else
+	paattr.tlength = mixlen*2;
+	paattr.prebuf = mixlen*2;
+	paattr.maxlength = mixlen*2;
 	paattr.minreq = mixlen;
-	paattr.fragsize = mixlen;
-	paattr.prebuf = mixlen;
-	paattr.maxlength = mixlen * 4;
-	
+#endif
+
 	/* The SDL ALSA output hints us that we use Windows' channel mapping */
 	/* http://bugzilla.libsdl.org/show_bug.cgi?id=110 */
 	SDL_NAME(pa_channel_map_init_auto)(
 		&pacmap, spec->channels, PA_CHANNEL_MAP_WAVEEX);
-	
-	/* Connect to the PulseAudio server */
-	stream = SDL_NAME(pa_simple_new)(
-		SDL_getenv("PASERVER"),      /* server */
-		get_progname(),              /* application name */
-		PA_STREAM_PLAYBACK,          /* playback mode */
-		SDL_getenv("PADEVICE"),      /* device on the server */
-		"Simple DirectMedia Layer",  /* stream description */
-		&paspec,                     /* sample format spec */
-		&pacmap,                     /* channel map */
-		&paattr,                     /* buffering attributes */
-		NULL                         /* error code */
-	);
-	if ( stream == NULL ) {
+
+	/* Set up a new main loop */
+	if (!(mainloop = SDL_NAME(pa_mainloop_new)())) {
 		PULSE_CloseAudio(this);
-		SDL_SetError("Could not connect to PulseAudio");
+		SDL_SetError("pa_mainloop_new() failed");
 		return(-1);
 	}
 
-	/* Get the parent process id (we're the parent of the audio thread) */
-	parent = getpid();
-	
+	mainloop_api = SDL_NAME(pa_mainloop_get_api)(mainloop);
+	if (!(context = SDL_NAME(pa_context_new)(mainloop_api, get_progname()))) {
+		PULSE_CloseAudio(this);
+		SDL_SetError("pa_context_new() failed");
+		return(-1);
+	}
+
+	/* Connect to the PulseAudio server */
+	if (SDL_NAME(pa_context_connect)(context, NULL, 0, NULL) < 0) {
+		PULSE_CloseAudio(this);
+	        SDL_SetError("Could not setup connection to PulseAudio");
+		return(-1);
+	}
+
+	do {
+		if (SDL_NAME(pa_mainloop_iterate)(mainloop, 1, NULL) < 0) {
+			PULSE_CloseAudio(this);
+			SDL_SetError("pa_mainloop_iterate() failed");
+			return(-1);
+		}
+		state = SDL_NAME(pa_context_get_state)(context);
+		if (!PA_CONTEXT_IS_GOOD(state)) {
+			PULSE_CloseAudio(this);
+			SDL_SetError("Could not connect to PulseAudio");
+			return(-1);
+		}
+	} while (state != PA_CONTEXT_READY);
+
+	stream = SDL_NAME(pa_stream_new)(
+		context,
+		"Simple DirectMedia Layer",  /* stream description */
+		&paspec,                     /* sample format spec */
+		&pacmap                      /* channel map */
+	);
+	if ( stream == NULL ) {
+		PULSE_CloseAudio(this);
+		SDL_SetError("Could not setup PulseAudio stream");
+		return(-1);
+	}
+
+	if (SDL_NAME(pa_stream_connect_playback)(stream, NULL, &paattr, flags,
+			NULL, NULL) < 0) {
+		PULSE_CloseAudio(this);
+		SDL_SetError("Could not connect PulseAudio stream");
+		return(-1);
+	}
+
+	do {
+		if (SDL_NAME(pa_mainloop_iterate)(mainloop, 1, NULL) < 0) {
+			PULSE_CloseAudio(this);
+			SDL_SetError("pa_mainloop_iterate() failed");
+			return(-1);
+		}
+		state = SDL_NAME(pa_stream_get_state)(stream);
+		if (!PA_STREAM_IS_GOOD(state)) {
+			PULSE_CloseAudio(this);
+			SDL_SetError("Could not create to PulseAudio stream");
+			return(-1);
+		}
+	} while (state != PA_STREAM_READY);
+
 	return(0);
 }
-

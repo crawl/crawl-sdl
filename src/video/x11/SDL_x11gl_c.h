@@ -1,6 +1,6 @@
 /*
     SDL - Simple DirectMedia Layer
-    Copyright (C) 1997-2006 Sam Lantinga
+    Copyright (C) 1997-2009 Sam Lantinga
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -73,8 +73,7 @@ struct SDL_PrivateGLData {
 
     int (*glXSwapIntervalSGI) ( int interval );
     GLint (*glXSwapIntervalMESA) ( unsigned interval );
-    GLint (*glXGetSwapIntervalMESA) ( void );
-
+    int swap_interval;
 #endif /* SDL_VIDEO_OPENGL_GLX */
 };
 

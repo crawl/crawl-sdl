@@ -1,6 +1,6 @@
 /*
     SDL - Simple DirectMedia Layer
-    Copyright (C) 1997-2004 Sam Lantinga
+    Copyright (C) 1997-2009 Sam Lantinga
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Library General Public
@@ -77,6 +77,6 @@ typedef struct {
 
 int SDL_XBIOS_SB3Usable(scpn_cookie_t *cookie_scpn);
 
-void SDL_XBIOS_SB3Init(_THIS, scpn_cookie_t *cookie_scpn);
+void SDL_XBIOS_ListSB3Modes(_THIS, int actually_add, scpn_cookie_t *cookie_scpn);
 
 #endif /* _SDL_xbios_sb3_h_ */

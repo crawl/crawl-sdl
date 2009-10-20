@@ -1,6 +1,6 @@
 /*
     SDL - Simple DirectMedia Layer
-    Copyright (C) 1997-2006 Sam Lantinga
+    Copyright (C) 1997-2009 Sam Lantinga
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -134,7 +134,6 @@
 #undef HAVE_SETJMP
 #undef HAVE_NANOSLEEP
 #undef HAVE_CLOCK_GETTIME
-#undef HAVE_DLVSYM
 #undef HAVE_GETPAGESIZE
 #undef HAVE_MPROTECT
 
@@ -176,6 +175,7 @@
 #undef SDL_AUDIO_DRIVER_MINT
 #undef SDL_AUDIO_DRIVER_MMEAUDIO
 #undef SDL_AUDIO_DRIVER_NAS
+#undef SDL_AUDIO_DRIVER_NAS_DYNAMIC
 #undef SDL_AUDIO_DRIVER_OSS
 #undef SDL_AUDIO_DRIVER_OSS_SOUNDCARD_H
 #undef SDL_AUDIO_DRIVER_PAUD
@@ -253,6 +253,7 @@
 /* Enable various video drivers */
 #undef SDL_VIDEO_DRIVER_AALIB
 #undef SDL_VIDEO_DRIVER_BWINDOW
+#undef SDL_VIDEO_DRIVER_CACA
 #undef SDL_VIDEO_DRIVER_DC
 #undef SDL_VIDEO_DRIVER_DDRAW
 #undef SDL_VIDEO_DRIVER_DGA
@@ -269,6 +270,7 @@
 #undef SDL_VIDEO_DRIVER_PHOTON
 #undef SDL_VIDEO_DRIVER_PICOGUI
 #undef SDL_VIDEO_DRIVER_PS2GS
+#undef SDL_VIDEO_DRIVER_PS3
 #undef SDL_VIDEO_DRIVER_QTOPIA
 #undef SDL_VIDEO_DRIVER_QUARTZ
 #undef SDL_VIDEO_DRIVER_RISCOS
@@ -279,7 +281,6 @@
 #undef SDL_VIDEO_DRIVER_WSCONS
 #undef SDL_VIDEO_DRIVER_X11
 #undef SDL_VIDEO_DRIVER_X11_DGAMOUSE
-#undef SDL_VIDEO_DRIVER_X11_DPMS
 #undef SDL_VIDEO_DRIVER_X11_DYNAMIC
 #undef SDL_VIDEO_DRIVER_X11_DYNAMIC_XEXT
 #undef SDL_VIDEO_DRIVER_X11_DYNAMIC_XRANDR
@@ -297,6 +298,9 @@
 #undef SDL_VIDEO_OPENGL_WGL
 #undef SDL_VIDEO_OPENGL_OSMESA
 #undef SDL_VIDEO_OPENGL_OSMESA_DYNAMIC
+
+/* Disable screensaver */
+#undef SDL_VIDEO_DISABLE_SCREENSAVER
 
 /* Enable assembly routines */
 #undef SDL_ASSEMBLY_ROUTINES

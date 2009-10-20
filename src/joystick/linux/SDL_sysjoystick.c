@@ -1,6 +1,6 @@
 /*
     SDL - Simple DirectMedia Layer
-    Copyright (C) 1997-2006 Sam Lantinga
+    Copyright (C) 1997-2009 Sam Lantinga
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -58,6 +58,9 @@ static struct {
 	{ "Logitech Inc. WingMan Extreme Digital 3D", 4, 1, 0 },
 	{ "Saitek Saitek X45", 6, 1, 0 }
 };
+
+/* It looks like newer kernels have the logical mapping at the driver level */
+#define NO_LOGICAL_JOYSTICKS
 
 #ifndef NO_LOGICAL_JOYSTICKS
 
@@ -371,13 +374,14 @@ static void LogicalSuffix(int logicalno, char* namebuf, int len)
 
 #if SDL_INPUT_LINUXEV
 #define test_bit(nr, addr) \
-	(((1UL << ((nr) & 31)) & (((const unsigned int *) addr)[(nr) >> 5])) != 0)
+	(((1UL << ((nr) % (sizeof(long) * 8))) & ((addr)[(nr) / (sizeof(long) * 8)])) != 0)
+#define NBITS(x) ((((x)-1)/(sizeof(long) * 8))+1)
 
 static int EV_IsJoystick(int fd)
 {
-	unsigned long evbit[40];
-	unsigned long keybit[40];
-	unsigned long absbit[40];
+	unsigned long evbit[NBITS(EV_MAX)] = { 0 };
+	unsigned long keybit[NBITS(KEY_MAX)] = { 0 };
+	unsigned long absbit[NBITS(ABS_MAX)] = { 0 };
 
 	if ( (ioctl(fd, EVIOCGBIT(0, sizeof(evbit)), evbit) < 0) ||
 	     (ioctl(fd, EVIOCGBIT(EV_KEY, sizeof(keybit)), keybit) < 0) ||
@@ -658,9 +662,9 @@ static SDL_bool JS_ConfigJoystick(SDL_Joystick *joystick, int fd)
 static SDL_bool EV_ConfigJoystick(SDL_Joystick *joystick, int fd)
 {
 	int i, t;
-	unsigned long keybit[40];
-	unsigned long absbit[40];
-	unsigned long relbit[40];
+	unsigned long keybit[NBITS(KEY_MAX)] = { 0 };
+	unsigned long absbit[NBITS(ABS_MAX)] = { 0 };
+	unsigned long relbit[NBITS(REL_MAX)] = { 0 };
 
 	/* See if this device uses the new unified event API */
 	if ( (ioctl(fd, EVIOCGBIT(EV_KEY, sizeof(keybit)), keybit) >= 0) &&
@@ -1191,8 +1195,8 @@ void SDL_SYS_JoystickQuit(void)
 
 	for ( i=0; SDL_joylist[i].fname; ++i ) {
 		SDL_free(SDL_joylist[i].fname);
+		SDL_joylist[i].fname = NULL;
 	}
-	SDL_joylist[0].fname = NULL;
 }
 
 #endif /* SDL_JOYSTICK_LINUX */

@@ -1,6 +1,6 @@
 /*
     SDL - Simple DirectMedia Layer
-    Copyright (C) 1997-2006 Sam Lantinga
+    Copyright (C) 1997-2009 Sam Lantinga
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -34,6 +34,7 @@
 #include "../SDL_pixels_c.h"
 #include "../../events/SDL_sysevents.h"
 #include "../../events/SDL_events_c.h"
+#include "SDL_gapidibvideo.h"
 #include "SDL_dibvideo.h"
 #include "../wincommon/SDL_syswm_c.h"
 #include "../wincommon/SDL_sysmouse_c.h"
@@ -41,6 +42,26 @@
 #include "../wincommon/SDL_wingl_c.h"
 
 #ifdef _WIN32_WCE
+
+#ifndef DM_DISPLAYORIENTATION
+#define DM_DISPLAYORIENTATION 0x00800000L
+#endif
+#ifndef DM_DISPLAYQUERYORIENTATION 
+#define DM_DISPLAYQUERYORIENTATION 0x01000000L
+#endif
+#ifndef DMDO_0
+#define DMDO_0      0
+#endif
+#ifndef DMDO_90
+#define DMDO_90     1
+#endif
+#ifndef DMDO_180
+#define DMDO_180    2
+#endif
+#ifndef DMDO_270
+#define DMDO_270    4
+#endif
+
 #define NO_GETDIBITS
 #define NO_GAMMA_SUPPORT
   #if _WIN32_WCE < 420
@@ -108,6 +129,9 @@ static void DIB_DeleteDevice(SDL_VideoDevice *device)
 {
 	if ( device ) {
 		if ( device->hidden ) {
+			if ( device->hidden->dibInfo ) {
+				SDL_free( device->hidden->dibInfo );
+			}
 			SDL_free(device->hidden);
 		}
 		if ( device->gl_data ) {
@@ -127,6 +151,16 @@ static SDL_VideoDevice *DIB_CreateDevice(int devindex)
 		SDL_memset(device, 0, (sizeof *device));
 		device->hidden = (struct SDL_PrivateVideoData *)
 				SDL_malloc((sizeof *device->hidden));
+		if(device->hidden){
+			SDL_memset(device->hidden, 0, (sizeof *device->hidden));
+			device->hidden->dibInfo = (DibInfo *)SDL_malloc((sizeof(DibInfo)));
+			if(device->hidden->dibInfo == NULL)
+			{
+				SDL_free(device->hidden);
+				device->hidden = NULL;
+			}
+		}
+		
 		device->gl_data = (struct SDL_PrivateGLData *)
 				SDL_malloc((sizeof *device->gl_data));
 	}
@@ -136,7 +170,7 @@ static SDL_VideoDevice *DIB_CreateDevice(int devindex)
 		DIB_DeleteDevice(device);
 		return(NULL);
 	}
-	SDL_memset(device->hidden, 0, (sizeof *device->hidden));
+	SDL_memset(device->hidden->dibInfo, 0, (sizeof *device->hidden->dibInfo));
 	SDL_memset(device->gl_data, 0, (sizeof *device->gl_data));
 
 	/* Set the function pointers */
@@ -327,6 +361,8 @@ int DIB_VideoInit(_THIS, SDL_PixelFormat *vformat)
 	this->hidden->supportRotation = ChangeDisplaySettingsEx(NULL, &settings, NULL, CDS_TEST, NULL) == DISP_CHANGE_SUCCESSFUL;
 #endif
 	/* Query for the desktop resolution */
+	SDL_desktop_mode.dmSize = sizeof(SDL_desktop_mode);
+	SDL_desktop_mode.dmDriverExtra = 0;
 	EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &SDL_desktop_mode);
 	this->info.current_w = SDL_desktop_mode.dmPelsWidth;
 	this->info.current_h = SDL_desktop_mode.dmPelsHeight;
@@ -376,7 +412,15 @@ int DIB_VideoInit(_THIS, SDL_PixelFormat *vformat)
 
 	/* Allow environment override of screensaver disable. */
 	env = SDL_getenv("SDL_VIDEO_ALLOW_SCREENSAVER");
-	this->hidden->allow_screensaver = ( (env && SDL_atoi(env)) ? 1 : 0 );
+	if ( env ) {
+		allow_screensaver = SDL_atoi(env);
+	} else {
+#ifdef SDL_VIDEO_DISABLE_SCREENSAVER
+		allow_screensaver = 0;
+#else
+		allow_screensaver = 1;
+#endif
+	}
 
 	/* We're done! */
 	return(0);
@@ -464,6 +508,76 @@ static int DIB_SussScreenDepth()
 /* Various screen update functions available */
 static void DIB_NormalUpdate(_THIS, int numrects, SDL_Rect *rects);
 
+static void DIB_ResizeWindow(_THIS, int width, int height, int prev_width, int prev_height, Uint32 flags)
+{
+	RECT bounds;
+	int x, y;
+
+#ifndef _WIN32_WCE
+	/* Resize the window */
+	if ( !SDL_windowid && !IsZoomed(SDL_Window) ) {
+#else
+	if ( !SDL_windowid ) {
+#endif
+		HWND top;
+		UINT swp_flags;
+		const char *window = NULL;
+		const char *center = NULL;
+
+		if ( width != prev_width || height != prev_height ) {
+			window = SDL_getenv("SDL_VIDEO_WINDOW_POS");
+			center = SDL_getenv("SDL_VIDEO_CENTERED");
+			if ( window ) {
+				if ( SDL_sscanf(window, "%d,%d", &x, &y) == 2 ) {
+					SDL_windowX = x;
+					SDL_windowY = y;
+				}
+				if ( SDL_strcmp(window, "center") == 0 ) {
+					center = window;
+				}
+			}
+		}
+		swp_flags = (SWP_NOCOPYBITS | SWP_SHOWWINDOW);
+
+		bounds.left = SDL_windowX;
+		bounds.top = SDL_windowY;
+		bounds.right = SDL_windowX+width;
+		bounds.bottom = SDL_windowY+height;
+#ifndef _WIN32_WCE
+		AdjustWindowRectEx(&bounds, GetWindowLong(SDL_Window, GWL_STYLE), (GetMenu(SDL_Window) != NULL), 0);
+#else
+		// The bMenu parameter must be FALSE; menu bars are not supported
+		AdjustWindowRectEx(&bounds, GetWindowLong(SDL_Window, GWL_STYLE), 0, 0);
+#endif
+		width = bounds.right-bounds.left;
+		height = bounds.bottom-bounds.top;
+		if ( (flags & SDL_FULLSCREEN) ) {
+			x = (GetSystemMetrics(SM_CXSCREEN)-width)/2;
+			y = (GetSystemMetrics(SM_CYSCREEN)-height)/2;
+		} else if ( center ) {
+			x = (GetSystemMetrics(SM_CXSCREEN)-width)/2;
+			y = (GetSystemMetrics(SM_CYSCREEN)-height)/2;
+		} else if ( SDL_windowX || SDL_windowY || window ) {
+			x = bounds.left;
+			y = bounds.top;
+		} else {
+			x = y = -1;
+			swp_flags |= SWP_NOMOVE;
+		}
+		if ( flags & SDL_FULLSCREEN ) {
+			top = HWND_TOPMOST;
+		} else {
+			top = HWND_NOTOPMOST;
+		}
+		SetWindowPos(SDL_Window, top, x, y, width, height, swp_flags);
+		if ( !(flags & SDL_FULLSCREEN) ) {
+			SDL_windowX = SDL_bounds.left;
+			SDL_windowY = SDL_bounds.top;
+		}
+		SetForegroundWindow(SDL_Window);
+	}
+}
+
 SDL_Surface *DIB_SetVideoMode(_THIS, SDL_Surface *current,
 				int width, int height, int bpp, Uint32 flags)
 {
@@ -480,11 +594,33 @@ SDL_Surface *DIB_SetVideoMode(_THIS, SDL_Surface *current,
 	int binfo_size;
 	BITMAPINFO *binfo;
 	HDC hdc;
-	RECT bounds;
-	int x, y;
 	Uint32 Rmask, Gmask, Bmask;
 
+	prev_w = current->w;
+	prev_h = current->h;
 	prev_flags = current->flags;
+
+	/*
+	 * Special case for OpenGL windows...since the app needs to call
+	 *  SDL_SetVideoMode() in response to resize events to continue to
+	 *  function, but WGL handles the GL context details behind the scenes,
+	 *  there's no sense in tearing the context down just to rebuild it
+	 *  to what it already was...tearing it down sacrifices your GL state
+	 *  and uploaded textures. So if we're requesting the same video mode
+	 *  attributes just resize the window and return immediately.
+	 */
+	if ( SDL_Window &&
+	     ((current->flags & ~SDL_ANYFORMAT) == (flags & ~SDL_ANYFORMAT)) &&
+	     (current->format->BitsPerPixel == bpp) &&
+	     (flags & SDL_OPENGL) && 
+	     !(flags & SDL_FULLSCREEN) ) {  /* probably not safe for fs */
+		current->w = width;
+		current->h = height;
+		SDL_resizing = 1;
+		DIB_ResizeWindow(this, width, height, prev_w, prev_h, flags);
+		SDL_resizing = 0;
+		return current;
+	}
 
 	/* Clean up any GL context that may be hanging around */
 	if ( current->flags & SDL_OPENGL ) {
@@ -533,8 +669,6 @@ SDL_Surface *DIB_SetVideoMode(_THIS, SDL_Surface *current,
 	}
 
 	/* Fill in part of the video surface */
-	prev_w = video->w;
-	prev_h = video->h;
 	video->flags = 0;	/* Clear flags */
 	video->w = width;
 	video->h = height;
@@ -686,7 +820,7 @@ SDL_Surface *DIB_SetVideoMode(_THIS, SDL_Surface *current,
 				video->flags |= SDL_RESIZABLE;
 			}
 		}
-#if WS_MAXIMIZE
+#if WS_MAXIMIZE && !defined(_WIN32_WCE)
 		if (IsZoomed(SDL_Window)) style |= WS_MAXIMIZE;
 #endif
 	}
@@ -764,72 +898,12 @@ SDL_Surface *DIB_SetVideoMode(_THIS, SDL_Surface *current,
 		if ( screen_pal && (flags & (SDL_FULLSCREEN|SDL_HWPALETTE)) ) {
 			grab_palette = TRUE;
 		}
-		/* BitBlt() maps colors for us */
-		video->flags |= SDL_HWPALETTE;
+		if ( screen_pal ) {
+			/* BitBlt() maps colors for us */
+			video->flags |= SDL_HWPALETTE;
+		}
 	}
-#ifndef _WIN32_WCE
-	/* Resize the window */
-	if ( !SDL_windowid && !IsZoomed(SDL_Window) ) {
-#else
-	if ( !SDL_windowid ) {
-#endif
-		HWND top;
-		UINT swp_flags;
-		const char *window = NULL;
-		const char *center = NULL;
-
-		if ( video->w != prev_w || video->h != prev_h ) {
-			window = SDL_getenv("SDL_VIDEO_WINDOW_POS");
-			center = SDL_getenv("SDL_VIDEO_CENTERED");
-			if ( window ) {
-				if ( SDL_sscanf(window, "%d,%d", &x, &y) == 2 ) {
-					SDL_windowX = x;
-					SDL_windowY = y;
-				}
-				if ( SDL_strcmp(window, "center") == 0 ) {
-					center = window;
-				}
-			}
-		}
-		swp_flags = (SWP_NOCOPYBITS | SWP_SHOWWINDOW);
-
-		bounds.left = SDL_windowX;
-		bounds.top = SDL_windowY;
-		bounds.right = SDL_windowX+video->w;
-		bounds.bottom = SDL_windowY+video->h;
-#ifndef _WIN32_WCE
-		AdjustWindowRectEx(&bounds, GetWindowLong(SDL_Window, GWL_STYLE), (GetMenu(SDL_Window) != NULL), 0);
-#else
-		// The bMenu parameter must be FALSE; menu bars are not supported
-		AdjustWindowRectEx(&bounds, GetWindowLong(SDL_Window, GWL_STYLE), 0, 0);
-#endif
-		width = bounds.right-bounds.left;
-		height = bounds.bottom-bounds.top;
-		if ( (flags & SDL_FULLSCREEN) ) {
-			x = (GetSystemMetrics(SM_CXSCREEN)-width)/2;
-			y = (GetSystemMetrics(SM_CYSCREEN)-height)/2;
-		} else if ( center ) {
-			x = (GetSystemMetrics(SM_CXSCREEN)-width)/2;
-			y = (GetSystemMetrics(SM_CYSCREEN)-height)/2;
-		} else if ( SDL_windowX || SDL_windowY || window ) {
-			x = bounds.left;
-			y = bounds.top;
-		} else {
-			x = y = -1;
-			swp_flags |= SWP_NOMOVE;
-		}
-		if ( flags & SDL_FULLSCREEN ) {
-			top = HWND_TOPMOST;
-		} else {
-			top = HWND_NOTOPMOST;
-		}
-		SetWindowPos(SDL_Window, top, x, y, width, height, swp_flags);
-		if ( !(flags & SDL_FULLSCREEN) ) {
-			SDL_windowX = SDL_bounds.left;
-			SDL_windowY = SDL_bounds.top;
-		}
-		SetForegroundWindow(SDL_Window);
-	}
+	DIB_ResizeWindow(this, width, height, prev_w, prev_h, flags);
 	SDL_resizing = 0;
 
 	/* Set up for OpenGL */
@@ -946,7 +1020,7 @@ int DIB_SetColors(_THIS, int firstcolor, int ncolors, SDL_Color *colors)
 			entry->peBlue  = colors[i].b;
 			entry->peFlags = PC_NOCOLLAPSE;
 		}
-#ifdef SYSPAL_NOSTATIC
+#if defined(SYSPAL_NOSTATIC) && !defined(_WIN32_WCE)
 		/* Check to make sure black and white are in position */
 		if ( GetSystemPaletteUse(hdc) != SYSPAL_NOSTATIC256 ) {
 			moved_entries += CheckPaletteEntry(screen_logpal, 0, 0x00, 0x00, 0x00);
@@ -1167,7 +1241,7 @@ void DIB_VideoQuit(_THIS)
 /* Exported for the windows message loop only */
 static void DIB_GrabStaticColors(HWND window)
 {
-#ifdef SYSPAL_NOSTATIC
+#if defined(SYSPAL_NOSTATIC) && !defined(_WIN32_WCE)
 	HDC hdc;
 
 	hdc = GetDC(window);
@@ -1180,7 +1254,7 @@ static void DIB_GrabStaticColors(HWND window)
 }
 static void DIB_ReleaseStaticColors(HWND window)
 {
-#ifdef SYSPAL_NOSTATIC
+#if defined(SYSPAL_NOSTATIC) && !defined(_WIN32_WCE)
 	HDC hdc;
 
 	hdc = GetDC(window);

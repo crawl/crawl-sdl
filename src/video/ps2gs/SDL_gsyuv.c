@@ -1,6 +1,6 @@
 /*
     SDL - Simple DirectMedia Layer
-    Copyright (C) 1997-2006 Sam Lantinga
+    Copyright (C) 1997-2009 Sam Lantinga
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -180,7 +180,7 @@ SDL_Overlay *GS_CreateYUVOverlay(_THIS, int width, int height, Uint32 format, SD
 
 	/* Allocate a DMA area for pixel conversion */
 	bpp = this->screen->format->BytesPerPixel;
-	map_offset = (mapped_len + (PAGE_SIZE - 1)) & ~(PAGE_SIZE - 1);
+	map_offset = (mapped_len + (sysconf(_SC_PAGESIZE) - 1)) & ~(sysconf(_SC_PAGESIZE) - 1);
 	hwdata->dma_len = hwdata->macroblocks * (16 * 16 + 8 * 8 + 8 * 8) +
 	                  width * height * bpp +
 	                  hwdata->macroblocks * (16 * sizeof(long long)) +

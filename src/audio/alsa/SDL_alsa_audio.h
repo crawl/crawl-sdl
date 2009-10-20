@@ -1,6 +1,6 @@
 /*
     SDL - Simple DirectMedia Layer
-    Copyright (C) 1997-2004 Sam Lantinga
+    Copyright (C) 1997-2009 Sam Lantinga
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Library General Public
@@ -24,8 +24,6 @@
 #ifndef _ALSA_PCM_audio_h
 #define _ALSA_PCM_audio_h
 
-#define ALSA_PCM_OLD_HW_PARAMS_API
-#define ALSA_PCM_OLD_SW_PARAMS_API
 #include <alsa/asoundlib.h>
 
 #include "../SDL_sysaudio.h"
@@ -37,9 +35,6 @@ struct SDL_PrivateAudioData {
 	/* The audio device handle */
 	snd_pcm_t *pcm_handle;
 
-	/* The parent process id, to detect when application quits */
-	pid_t parent;
-
 	/* Raw mixing buffer */
 	Uint8 *mixbuf;
 	int    mixlen;
@@ -47,7 +42,6 @@ struct SDL_PrivateAudioData {
 
 /* Old variable names */
 #define pcm_handle		(this->hidden->pcm_handle)
-#define parent			(this->hidden->parent)
 #define mixbuf			(this->hidden->mixbuf)
 #define mixlen			(this->hidden->mixlen)
 

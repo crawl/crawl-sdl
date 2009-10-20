@@ -1,6 +1,6 @@
 /*
     SDL - Simple DirectMedia Layer
-    Copyright (C) 1997-2003  Sam Lantinga
+    Copyright (C) 1997-2009  Sam Lantinga
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Library General Public
@@ -125,32 +125,31 @@ static void QZ_SetPortAlphaOpaque () {
         newViewFrame = [ window_view frame ];
         
         SDL_PrivateResize (newViewFrame.size.width, newViewFrame.size.height);
-
-        /* If not OpenGL, we have to update the pixels and pitch */
-        if ( ! ( SDL_VideoSurface->flags & SDL_OPENGL ) ) {
-            
-            CGrafPtr thePort = [ window_view qdPort ];
-            LockPortBits ( thePort );
-            
-            SDL_VideoSurface->pixels = GetPixBaseAddr ( GetPortPixMap ( thePort ) );
-            SDL_VideoSurface->pitch  = GetPixRowBytes ( GetPortPixMap ( thePort ) );
-                        
-            /* 
-                SDL_VideoSurface->pixels now points to the window's pixels
-                We want it to point to the *view's* pixels 
-            */
-            { 
-                int vOffset = [ qz_window frame ].size.height - 
-                    newViewFrame.size.height - newViewFrame.origin.y;
-                
-                int hOffset = newViewFrame.origin.x;
-                        
-                SDL_VideoSurface->pixels = (Uint8 *)SDL_VideoSurface->pixels + (vOffset * SDL_VideoSurface->pitch) + hOffset * (device_bpp/8);
-            }
-            
-            UnlockPortBits ( thePort );
-        }
     }
+}
+
+/* QZ_DoActivate() calls a low-level CoreGraphics routine to adjust
+   the cursor position, if input is being grabbed. If app activation is
+   triggered by a mouse click in the title bar, then the window manager
+   gets confused and thinks we're dragging the window. The solution
+   below postpones the activate event to avoid this scenario. */
+- (void)becomeKeyWindow
+{
+	NSEvent *event = [self currentEvent];
+	if ([event type] == NSLeftMouseDown && [event window] == self)
+		watchForMouseUp = YES;
+	else
+		[super becomeKeyWindow];
+}
+
+- (void)sendEvent:(NSEvent *)event
+{
+	[super sendEvent:event];
+	if (watchForMouseUp && [event type] == NSLeftMouseUp)
+	{
+		watchForMouseUp = NO;
+		[super becomeKeyWindow];
+	}
 }
 
 - (void)appDidHide:(NSNotification*)note
@@ -183,7 +182,7 @@ static void QZ_SetPortAlphaOpaque () {
     SDL_PrivateAppActive (1, SDL_APPACTIVE);
 }
 
-- (id)initWithContentRect:(NSRect)contentRect styleMask:(unsigned int)styleMask backing:(NSBackingStoreType)backingType defer:(BOOL)flag
+- (id)initWithContentRect:(NSRect)contentRect styleMask:(NSUInteger)styleMask backing:(NSBackingStoreType)backingType defer:(BOOL)flag
 {
     /* Make our window subclass receive these application notifications */
     [ [ NSNotificationCenter defaultCenter ] addObserver:self
