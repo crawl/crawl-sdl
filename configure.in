@@ -2,6 +2,7 @@ dnl Process this file with autoconf to produce a configure script.
 AC_INIT(README)
 AC_CONFIG_HEADER(include/SDL_config.h)
 AC_GNU_SOURCE
+AC_CONFIG_AUX_DIRS($srcdir/build-scripts)
 
 dnl Set various version strings - taken gratefully from the GTk sources
 #
@@ -16,9 +17,9 @@ dnl Set various version strings - taken gratefully from the GTk sources
 #
 SDL_MAJOR_VERSION=1
 SDL_MINOR_VERSION=2
-SDL_MICRO_VERSION=13
-SDL_INTERFACE_AGE=2
-SDL_BINARY_AGE=13
+SDL_MICRO_VERSION=14
+SDL_INTERFACE_AGE=3
+SDL_BINARY_AGE=14
 SDL_VERSION=$SDL_MAJOR_VERSION.$SDL_MINOR_VERSION.$SDL_MICRO_VERSION
 
 AC_SUBST(SDL_MAJOR_VERSION)
@@ -29,10 +30,13 @@ AC_SUBST(SDL_BINARY_AGE)
 AC_SUBST(SDL_VERSION)
 
 # libtool versioning
+LT_INIT([win32-dll])
+
 LT_RELEASE=$SDL_MAJOR_VERSION.$SDL_MINOR_VERSION
 LT_CURRENT=`expr $SDL_MICRO_VERSION - $SDL_INTERFACE_AGE`
 LT_REVISION=$SDL_INTERFACE_AGE
 LT_AGE=`expr $SDL_BINARY_AGE - $SDL_INTERFACE_AGE`
+m4_pattern_allow([^LT_])
 
 AC_SUBST(LT_RELEASE)
 AC_SUBST(LT_CURRENT)
@@ -40,14 +44,27 @@ AC_SUBST(LT_REVISION)
 AC_SUBST(LT_AGE)
 
 dnl Detect the canonical build and host environments
-AC_CONFIG_AUX_DIRS($srcdir/build-scripts)
-AC_CANONICAL_HOST
+AC_CONFIG_AUX_DIR([build-scripts])
+dnl AC_CANONICAL_HOST
 AC_C_BIGENDIAN
 if test x$ac_cv_c_bigendian = xyes; then
     AC_DEFINE(SDL_BYTEORDER, 4321)
 else
     AC_DEFINE(SDL_BYTEORDER, 1234)
 fi
+
+dnl Check for tools
+AC_PROG_LIBTOOL
+AC_PROG_CC
+AC_PROG_CXX
+AC_PROG_INSTALL
+AC_PROG_MAKE_SET
+if test -z "$host_alias"; then
+    hostaliaswindres=
+else
+    hostaliaswindres="$host_alias-windres"
+fi
+AC_CHECK_PROGS(WINDRES, [windres $hostaliaswindres $host_os-windres])
 
 dnl Set up the compiler and linker flags
 INCLUDE="-I$srcdir/include"
@@ -89,19 +106,28 @@ CPPFLAGS="$CPPFLAGS $EXTRA_CFLAGS"
 CFLAGS="$CFLAGS $EXTRA_CFLAGS"
 LDFLAGS="$LDFLAGS $EXTRA_LDFLAGS"
 
-dnl Check for tools
-AC_LIBTOOL_WIN32_DLL
-AC_PROG_LIBTOOL
-AC_PROG_CC
-AC_PROG_CXX
-AC_PROG_INSTALL
-AC_PROG_MAKE_SET
-if test -z "$host_alias"; then
-    hostaliaswindres=
-else
-    hostaliaswindres="$host_alias-windres"
-fi
-AC_CHECK_PROGS(WINDRES, [windres $hostaliaswindres $host_os-windres])
+dnl set this to use on systems that use lib64 instead of lib
+base_libdir=`echo \${libdir} | sed 's/.*\/\(.*\)/\1/; q'`
+
+dnl Function to find a library in the compiler search path
+find_lib()
+{
+    gcc_bin_path=[`$CC -print-search-dirs 2>/dev/null | fgrep programs: | sed 's/[^=]*=\(.*\)/\1/' | sed 's/:/ /g'`]
+    gcc_lib_path=[`$CC -print-search-dirs 2>/dev/null | fgrep libraries: | sed 's/[^=]*=\(.*\)/\1/' | sed 's/:/ /g'`]
+    env_lib_path=[`echo $LIBS $LDFLAGS $* | sed 's/-L[ ]*//g'`]
+    if test "$cross_compiling" = yes; then
+        host_lib_path=""
+    else
+        host_lib_path="/usr/$base_libdir /usr/local/$base_libdir"
+    fi
+    for path in $gcc_bin_path $gcc_lib_path $env_lib_path $host_lib_path; do
+        lib=[`ls -- $path/$1 2>/dev/null | sort | sed 's/.*\/\(.*\)/\1/; q'`]
+        if test x$lib != x; then
+            echo $lib
+            return
+        fi
+    done
+}
 
 dnl Check for compiler characteristics
 AC_C_CONST
@@ -347,18 +373,7 @@ AC_HELP_STRING([--enable-alsa], [support the ALSA audio API [[default=yes]]]),
             AC_ARG_ENABLE(alsa-shared,
 AC_HELP_STRING([--enable-alsa-shared], [dynamically load ALSA audio support [[default=yes]]]),
                           , enable_alsa_shared=yes)
-            if test "x`echo $ALSA_LIBS | grep -- -L`" = "x"; then
-                if test "x`ls /lib/libasound.so.* 2> /dev/null`" != "x"; then
-                    ALSA_LIBS="-L/lib $ALSA_LIBS"
-                elif test "x`ls /usr/lib/libasound.so.* 2> /dev/null`" != "x"; then
-                    ALSA_LIBS="-L/usr/lib $ALSA_LIBS"
-                elif test "x`ls /usr/local/lib/libasound.so.* 2> /dev/null`" != "x"; then
-                    ALSA_LIBS="-L/usr/local/lib $ALSA_LIBS"
-                fi
-            fi
-            alsa_lib_spec=`echo $ALSA_LIBS | sed 's/.*-L\([[^ ]]*\).*/\1\/libasound.so.*/'`
-            alsa_lib=`ls -- $alsa_lib_spec | sed 's/.*\/\(.*\)/\1/; q'`
-            echo "-- $alsa_lib_spec -> $alsa_lib"
+            alsa_lib=[`find_lib "libasound.so.*" "$ALSA_LIBS" | sed 's/.*\/\(.*\)/\1/; q'`]
 
             AC_DEFINE(SDL_AUDIO_DRIVER_ALSA)
             SOURCES="$SOURCES $srcdir/src/audio/alsa/*.c"
@@ -369,6 +384,7 @@ AC_HELP_STRING([--enable-alsa-shared], [dynamically load ALSA audio support [[de
             fi
             if test x$have_loadso = xyes && \
                test x$enable_alsa_shared = xyes && test x$alsa_lib != x; then
+                echo "-- dynamic libasound -> $alsa_lib"
                 AC_DEFINE_UNQUOTED(SDL_AUDIO_DRIVER_ALSA_DYNAMIC, "$alsa_lib")
             else
                 EXTRA_LDFLAGS="$EXTRA_LDFLAGS $ALSA_LIBS"
@@ -452,9 +468,7 @@ AC_HELP_STRING([--enable-esd], [support the Enlightened Sound Daemon [[default=y
             AC_ARG_ENABLE(esd-shared,
 AC_HELP_STRING([--enable-esd-shared], [dynamically load ESD audio support [[default=yes]]]),
                           , enable_esd_shared=yes)
-            esd_lib_spec=`echo $ESD_LIBS | sed 's/.*-L\([[^ ]]*\).*/\1\/libesd.so.*/'`
-            esd_lib=`ls -- $esd_lib_spec | sed 's/.*\/\(.*\)/\1/; q'`
-            echo "-- $esd_lib_spec -> $esd_lib"
+            esd_lib=[`find_lib "libesd.so.*" "$ESD_LIBS" | sed 's/.*\/\(.*\)/\1/; q'`]
 
             AC_DEFINE(SDL_AUDIO_DRIVER_ESD)
             SOURCES="$SOURCES $srcdir/src/audio/esd/*.c"
@@ -465,6 +479,7 @@ AC_HELP_STRING([--enable-esd-shared], [dynamically load ESD audio support [[defa
             fi
             if test x$have_loadso = xyes && \
                test x$enable_esd_shared = xyes && test x$esd_lib != x; then
+                echo "-- dynamic libesd -> $esd_lib"
                 AC_DEFINE_UNQUOTED(SDL_AUDIO_DRIVER_ESD_DYNAMIC, "$esd_lib")
             else
                 EXTRA_LDFLAGS="$EXTRA_LDFLAGS $ESD_LIBS"
@@ -479,8 +494,8 @@ CheckPulseAudio()
 {
     AC_ARG_ENABLE(pulseaudio,
 AC_HELP_STRING([--enable-pulseaudio], [use PulseAudio [[default=yes]]]),
-                  , enable_pulse=yes)
-    if test x$enable_audio = xyes -a x$enable_pulse = xyes; then
+                  , enable_pulseaudio=yes)
+    if test x$enable_audio = xyes -a x$enable_pulseaudio = xyes; then
         audio_pulse=no
 
         PULSE_REQUIRED_VERSION=0.9
@@ -488,40 +503,30 @@ AC_HELP_STRING([--enable-pulseaudio], [use PulseAudio [[default=yes]]]),
         AC_PATH_PROG(PKG_CONFIG, pkg-config, no)
         AC_MSG_CHECKING(for PulseAudio $PULSE_REQUIRED_VERSION support)
         if test x$PKG_CONFIG != xno; then
-        if $PKG_CONFIG --atleast-pkgconfig-version 0.7 && $PKG_CONFIG --atleast-version $PULSE_REQUIRED_VERSION libpulse-simple; then
+            if $PKG_CONFIG --atleast-pkgconfig-version 0.7 && $PKG_CONFIG --atleast-version $PULSE_REQUIRED_VERSION libpulse-simple; then
                 PULSE_CFLAGS=`$PKG_CONFIG --cflags libpulse-simple`
                 PULSE_LIBS=`$PKG_CONFIG --libs libpulse-simple`
                 audio_pulse=yes
-        fi
+            fi
         fi
         AC_MSG_RESULT($audio_pulse)
 
         if test x$audio_pulse = xyes; then
             AC_ARG_ENABLE(pulseaudio-shared,
 AC_HELP_STRING([--enable-pulseaudio-shared], [dynamically load PulseAudio support [[default=yes]]]),
-                          , enable_pulse_shared=yes)
-            if test "x`echo $PULSE_LIBS | grep -- -L`" = "x"; then
-                if test "x`ls /lib/libpulse-simple.so.* 2> /dev/null`" != "x"; then
-                    PULSE_LIBS="-L/lib $PULSE_LIBS"
-                elif test "x`ls /usr/lib/libpulse-simple.so.* 2> /dev/null`" != "x"; then
-                    PULSE_LIBS="-L/usr/lib $PULSE_LIBS"
-                elif test "x`ls /usr/local/lib/libpulse-simple.so.* 2> /dev/null`" != "x"; then
-                    PULSE_LIBS="-L/usr/local/lib $PULSE_LIBS"
-                fi
-            fi
-            pulse_lib_spec=`echo $PULSE_LIBS | sed 's/.*-L\([[^ ]]*\).*/\1\/libpulse-simple.so.*/'`
-            pulse_lib=`ls -- $pulse_lib_spec | sed 's/.*\/\(.*\)/\1/; q'`
-            echo "-- $pulse_lib_spec -> $pulse_lib"
+                          , enable_pulseaudio_shared=yes)
+            pulse_lib=[`find_lib "libpulse-simple.so.*" "$PULSE_LIBS" | sed 's/.*\/\(.*\)/\1/; q'`]
 
             AC_DEFINE(SDL_AUDIO_DRIVER_PULSE)
             SOURCES="$SOURCES $srcdir/src/audio/pulse/*.c"
             EXTRA_CFLAGS="$EXTRA_CFLAGS $PULSE_CFLAGS"
             if test x$have_loadso != xyes && \
-               test x$enable_pulse_shared = xyes; then
+               test x$enable_pulseaudio_shared = xyes; then
                 AC_MSG_WARN([You must have SDL_LoadObject() support for dynamic PulseAudio loading])
             fi
             if test x$have_loadso = xyes && \
-               test x$enable_pulse_shared = xyes && test x$pulse_lib != x; then
+               test x$enable_pulseaudio_shared = xyes && test x$pulse_lib != x; then
+                echo "-- dynamic libpulse-simple -> $pulse_lib"
                 AC_DEFINE_UNQUOTED(SDL_AUDIO_DRIVER_PULSE_DYNAMIC, "$pulse_lib")
             else
                 EXTRA_LDFLAGS="$EXTRA_LDFLAGS $PULSE_LIBS"
@@ -543,7 +548,6 @@ AC_HELP_STRING([--enable-arts], [support the Analog Real Time Synthesizer [[defa
         else
             ARTS_CFLAGS=`$ARTSCONFIG --cflags`
             ARTS_LIBS=`$ARTSCONFIG --libs`
-            ARTS_PREFIX=`$ARTSCONFIG --arts-prefix`
             AC_MSG_CHECKING(for aRts development environment)
             audio_arts=no
             save_CFLAGS="$CFLAGS"
@@ -561,9 +565,7 @@ AC_HELP_STRING([--enable-arts], [support the Analog Real Time Synthesizer [[defa
                 AC_ARG_ENABLE(arts-shared,
 AC_HELP_STRING([--enable-arts-shared], [dynamically load aRts audio support [[default=yes]]]),
                               , enable_arts_shared=yes)
-                arts_lib_spec="$ARTS_PREFIX/lib/libartsc.so.*"
-                arts_lib=`ls -- $arts_lib_spec | sed 's/.*\/\(.*\)/\1/; q'`
-                echo "-- $arts_lib_spec -> $arts_lib"
+                arts_lib=[`find_lib "libartsc.so.*" "$ARTS_LIBS" | sed 's/.*\/\(.*\)/\1/; q'`]
 
                 AC_DEFINE(SDL_AUDIO_DRIVER_ARTS)
                 SOURCES="$SOURCES $srcdir/src/audio/arts/*.c"
@@ -574,6 +576,7 @@ AC_HELP_STRING([--enable-arts-shared], [dynamically load aRts audio support [[de
                 fi
                 if test x$have_loadso = xyes && \
                    test x$enable_arts_shared = xyes && test x$arts_lib != x; then
+                    echo "-- dynamic libartsc -> $arts_lib"
                     AC_DEFINE_UNQUOTED(SDL_AUDIO_DRIVER_ARTS_DYNAMIC, "$arts_lib")
                 else
                     EXTRA_LDFLAGS="$EXTRA_LDFLAGS $ARTS_LIBS"
@@ -591,30 +594,52 @@ CheckNAS()
 AC_HELP_STRING([--enable-nas], [support the NAS audio API [[default=yes]]]),
                   , enable_nas=yes)
     if test x$enable_audio = xyes -a x$enable_nas = xyes; then
-        save_LDFLAGS="$LDFLAGS"
-        LDFLAGS="$LDFLAGS -lXt -lm"
-        AC_CHECK_HEADER(audio/audiolib.h, have_audio_hdr=yes)
-        AC_CHECK_LIB(audio, AuOpenServer, have_audio_lib=yes)
-        AC_CHECK_HEADER(nas/audiolib.h, have_nas_hdr=yes)
-        AC_CHECK_LIB(nas, AuOpenServer, have_nas_lib=yes)
-        LDFLAGS="$save_LDFLAGS"
+        AC_CHECK_HEADER(audio/audiolib.h, have_nas_hdr=yes)
+        AC_CHECK_LIB(audio, AuOpenServer, have_nas_lib=yes)
 
         AC_MSG_CHECKING(for NAS audio support)
         have_nas=no
-        if test x$have_audio_hdr = xyes -a x$have_audio_lib = xyes; then
+
+        if test x$have_nas_hdr = xyes -a x$have_nas_lib = xyes; then
             have_nas=yes
-            NAS_LIBS="-laudio -lXt"
-        elif test x$have_nas_hdr = xyes -a x$have_nas_lib = xyes; then
+            NAS_LIBS="-laudio"
+
+        elif test -r /usr/X11R6/include/audio/audiolib.h; then
+            have_nas=yes
+            NAS_CFLAGS="-I/usr/X11R6/include/"
+            NAS_LIBS="-L/usr/X11R6/lib -laudio -lXt"
+
+        dnl On IRIX, the NAS includes are in a different directory,
+        dnl and libnas must be explicitly linked in
+
+        elif test -r /usr/freeware/include/nas/audiolib.h; then
             have_nas=yes
             NAS_LIBS="-lnas -lXt"
-	fi
+        fi
+
         AC_MSG_RESULT($have_nas)
 
         if test x$have_nas = xyes; then
+            AC_ARG_ENABLE(nas-shared,
+AC_HELP_STRING([--enable-nas-shared], [dynamically load NAS audio support [[default=yes]]]),
+                          , enable_nas_shared=yes)
+            nas_lib=[`find_lib "libaudio.so.*" "$NAS_LIBS" | sed 's/.*\/\(.*\)/\1/; q'`]
+
+            if test x$have_loadso != xyes && \
+               test x$enable_nas_shared = xyes; then
+                AC_MSG_WARN([You must have SDL_LoadObject() support for dynamic NAS loading])
+            fi
+            if test x$have_loadso = xyes && \
+               test x$enable_nas_shared = xyes && test x$nas_lib != x; then
+                echo "-- dynamic libaudio -> $nas_lib"
+                AC_DEFINE_UNQUOTED(SDL_AUDIO_DRIVER_NAS_DYNAMIC, "$nas_lib")
+            else
+                EXTRA_LDFLAGS="$EXTRA_LDFLAGS $NAS_LIBS"
+            fi
+
             AC_DEFINE(SDL_AUDIO_DRIVER_NAS)
             SOURCES="$SOURCES $srcdir/src/audio/nas/*.c"
             EXTRA_CFLAGS="$EXTRA_CFLAGS $NAS_CFLAGS"
-            EXTRA_LDFLAGS="$EXTRA_LDFLAGS $NAS_LIBS"
             have_audio=yes
         fi
     fi
@@ -676,6 +701,14 @@ CheckNASM()
             return
             ;;
     esac
+
+    dnl Mac OS X might report itself as "i386" but generate x86_64 code.
+    dnl  So see what size we think a pointer is, and bail if not 32-bit.
+    AC_CHECK_SIZEOF([void *], 4)
+    if test x$ac_cv_sizeof_void_p != x4; then
+        return
+    fi
+
     dnl Check for NASM (for assembly blit routines)
     AC_ARG_ENABLE(nasm,
 AC_HELP_STRING([--enable-nasm], [use nasm assembly blitters on x86 [[default=yes]]]),
@@ -753,64 +786,66 @@ CheckAltivec()
 AC_HELP_STRING([--enable-altivec], [use altivec assembly blitters on PPC [[default=yes]]]),
                   , enable_altivec=yes)
     if test x$enable_video = xyes -a x$enable_assembly = xyes -a x$enable_altivec = xyes; then
-        have_altivec_h_hdr=no
-        AC_CHECK_HEADER(altivec.h, have_altivec_h_hdr=yes)
-
         save_CFLAGS="$CFLAGS"
         have_gcc_altivec=no
-        AC_MSG_CHECKING(for Altivec with GCC -maltivec option)
+        have_altivec_h_hdr=no
         altivec_CFLAGS="-maltivec"
         CFLAGS="$save_CFLAGS $altivec_CFLAGS"
 
-        if test x$have_altivec_h_hdr = xyes; then
-          AC_TRY_COMPILE([
-          #include <altivec.h>
-          vector unsigned int vzero() {
-              return vec_splat_u32(0);
-          }
-          ],[
-          ],[
-          have_gcc_altivec=yes
-          ])
-          AC_MSG_RESULT($have_gcc_altivec)
-        else
-          AC_TRY_COMPILE([
-          vector unsigned int vzero() {
-              return vec_splat_u32(0);
-          }
-          ],[
-          ],[
-          have_gcc_altivec=yes
-          ])
-          AC_MSG_RESULT($have_gcc_altivec)
+        AC_MSG_CHECKING(for Altivec with GCC altivec.h and -maltivec option)
+        AC_TRY_COMPILE([
+        #include <altivec.h>
+        vector unsigned int vzero() {
+            return vec_splat_u32(0);
+        }
+        ],[
+        ],[
+        have_gcc_altivec=yes
+        have_altivec_h_hdr=yes
+        ])
+        AC_MSG_RESULT($have_gcc_altivec)
+
+        if test x$have_gcc_altivec = xno; then
+            AC_MSG_CHECKING(for Altivec with GCC -maltivec option)
+            AC_TRY_COMPILE([
+            vector unsigned int vzero() {
+                return vec_splat_u32(0);
+            }
+            ],[
+            ],[
+            have_gcc_altivec=yes
+            ])
+            AC_MSG_RESULT($have_gcc_altivec)
         fi
 
         if test x$have_gcc_altivec = xno; then
-            AC_MSG_CHECKING(for Altivec with GCC -faltivec option)
+            AC_MSG_CHECKING(for Altivec with GCC altivec.h and -faltivec option)
             altivec_CFLAGS="-faltivec"
             CFLAGS="$save_CFLAGS $altivec_CFLAGS"
-            if test x$have_altivec_h_hdr = xyes; then
-              AC_TRY_COMPILE([
-              #include <altivec.h>
-              vector unsigned int vzero() {
-                  return vec_splat_u32(0);
-              }
-              ],[
-              ],[
-              have_gcc_altivec=yes
-              ])
-              AC_MSG_RESULT($have_gcc_altivec)
-            else
-              AC_TRY_COMPILE([
-              vector unsigned int vzero() {
-                  return vec_splat_u32(0);
-              }
-              ],[
-              ],[
-              have_gcc_altivec=yes
-              ])
-              AC_MSG_RESULT($have_gcc_altivec)
-            fi
+            AC_TRY_COMPILE([
+            #include <altivec.h>
+            vector unsigned int vzero() {
+                return vec_splat_u32(0);
+            }
+            ],[
+            ],[
+            have_gcc_altivec=yes
+            have_altivec_h_hdr=yes
+            ])
+            AC_MSG_RESULT($have_gcc_altivec)
+	fi
+
+        if test x$have_gcc_altivec = xno; then
+            AC_MSG_CHECKING(for Altivec with GCC -faltivec option)
+            AC_TRY_COMPILE([
+            vector unsigned int vzero() {
+                return vec_splat_u32(0);
+            }
+            ],[
+            ],[
+            have_gcc_altivec=yes
+            ])
+            AC_MSG_RESULT($have_gcc_altivec)
         fi
         CFLAGS="$save_CFLAGS"
 
@@ -855,8 +890,8 @@ dnl Do the iPod thing
 CheckIPod()
 {
     AC_ARG_ENABLE(ipod,
-AC_HELP_STRING([--enable-ipod], [configure SDL to work with iPodLinux [default=yes on arm-elf]]),
-        , enable_ipod=yes)
+AC_HELP_STRING([--enable-ipod], [configure SDL to work with iPodLinux [[default=no]]]),
+        , enable_ipod=no)
 
     if test x$enable_ipod = xyes; then
         EXTRA_CFLAGS="$EXTRA_CFLAGS -DIPOD"
@@ -946,33 +981,10 @@ AC_HELP_STRING([--enable-x11-shared], [dynamically load X11 support [[default=ma
                     x11ext_lib='libXext.so'
                     ;;
                 *)
-                    x11_lib_path=[`echo $X_LIBS | sed 's/.*-L\([^ ]*\).*/\1/'`]
-                    for path in $x11_lib_path /usr/lib /usr/X11/lib /usr/X11R6/lib; do
-                        if test "x$x11_lib" = "x"; then
-                            x11_lib=[`ls -- $path/libX11.so.[0-9] 2>/dev/null | sort -r | sed 's/.*\/\(.*\)/\1/; q'`]
-                            if test "x$x11_lib" = "x"; then
-                                x11_lib=[`ls -- $path/libX11.so.[0-9]* 2>/dev/null | sort -r | sed 's/.*\/\(.*\)/\1/; q'`]
-                            fi
-                        fi
-                        if test "x$x11ext_lib" = "x"; then
-                            x11ext_lib=[`ls -- $path/libXext.so.[0-9] 2>/dev/null | sort -r | sed 's/.*\/\(.*\)/\1/; q'`]
-                            if test "x$x11ext_lib" = "x"; then
-                                x11ext_lib=[`ls -- $path/libXext.so.[0-9]* 2>/dev/null | sort -r | sed 's/.*\/\(.*\)/\1/; q'`]
-                            fi
-                        fi
-                        if test "x$xrender_lib" = "x"; then
-                            xrender_lib=[`ls -- $path/libXrender.so.[0-9] 2>/dev/null | sort -r | sed 's/.*\/\(.*\)/\1/; q'`]
-                            if test "x$xrender_lib" = "x"; then
-                                xrender_lib=[`ls -- $path/libXrender.so.[0-9]* 2>/dev/null | sort -r | sed 's/.*\/\(.*\)/\1/; q'`]
-                            fi
-                        fi
-                        if test "x$xrandr_lib" = "x"; then
-                            xrandr_lib=[`ls -- $path/libXrandr.so.[0-9] 2>/dev/null | sort -r | sed 's/.*\/\(.*\)/\1/; q'`]
-                            if test "x$xrandr_lib" = "x"; then
-                                xrandr_lib=[`ls -- $path/libXrandr.so.[0-9]* 2>/dev/null | sort -r | sed 's/.*\/\(.*\)/\1/; q'`]
-                            fi
-                        fi
-                    done
+                    x11_lib=[`find_lib "libX11.so.*" "$X_LIBS -L/usr/X11/$base_libdir -L/usr/X11R6/$base_libdir" | sed 's/.*\/\(.*\)/\1/; q'`]
+                    x11ext_lib=[`find_lib "libXext.so.*" "$X_LIBS -L/usr/X11/$base_libdir -L/usr/X11R6/$base_libdir" | sed 's/.*\/\(.*\)/\1/; q'`]
+                    xrender_lib=[`find_lib "libXrender.so.*" "$X_LIBS -L/usr/X11/$base_libdir -L/usr/X11R6/$base_libdir" | sed 's/.*\/\(.*\)/\1/; q'`]
+                    xrandr_lib=[`find_lib "libXrandr.so.*" "$X_LIBS -L/usr/X11/$base_libdir -L/usr/X11R6/$base_libdir" | sed 's/.*\/\(.*\)/\1/; q'`]
                     ;;
             esac
 
@@ -1089,19 +1101,6 @@ AC_HELP_STRING([--enable-video-x11-xrandr], [enable X11 Xrandr extension for ful
             fi
             if test x$definitely_enable_video_x11_xrandr = xyes; then
                 AC_DEFINE(SDL_VIDEO_DRIVER_X11_XRANDR)
-            fi
-            AC_ARG_ENABLE(video-x11-dpms,
-AC_HELP_STRING([--enable-video-x11-dpms], [enable X11 DPMS extension [[default=yes]]]),
-                            , enable_video_x11_dpms=yes)
-            if test x$enable_video_x11_dpms = xyes; then
-                AC_CHECK_HEADER(X11/extensions/dpms.h,
-                                have_dpms_h_hdr=yes,
-                                have_dpms_h_hdr=no,
-                                [#include <X11/Xlib.h>
-                                ])
-                if test x$have_dpms_h_hdr = xyes; then
-                    AC_DEFINE(SDL_VIDEO_DRIVER_X11_DPMS)
-                fi
             fi
         fi
     fi
@@ -1242,7 +1241,6 @@ AC_HELP_STRING([--enable-video-directfb], [use DirectFB video driver [[default=y
         AC_PATH_PROG(DIRECTFBCONFIG, directfb-config, no)
         if test x$DIRECTFBCONFIG = xno; then
             AC_PATH_PROG(PKG_CONFIG, pkg-config, no)
-            AC_MSG_CHECKING(for DirectFB $DIRECTFB_REQUIRED_VERSION support)
             if test x$PKG_CONFIG != xno; then
                 if $PKG_CONFIG --atleast-pkgconfig-version 0.7 && $PKG_CONFIG --atleast-version $DIRECTFB_REQUIRED_VERSION directfb; then
                     DIRECTFB_CFLAGS=`$PKG_CONFIG --cflags directfb`
@@ -1250,9 +1248,7 @@ AC_HELP_STRING([--enable-video-directfb], [use DirectFB video driver [[default=y
                     video_directfb=yes
                 fi
             fi
-            AC_MSG_RESULT($video_directfb)
         else
-            AC_MSG_CHECKING(for DirectFB $DIRECTFB_REQUIRED_VERSION support)
             set -- `echo $DIRECTFB_REQUIRED_VERSION | sed 's/\./ /g'`
             NEED_VERSION=`expr $1 \* 10000 + $2 \* 100 + $3`
             set -- `directfb-config --version | sed 's/\./ /g'`
@@ -1262,8 +1258,17 @@ AC_HELP_STRING([--enable-video-directfb], [use DirectFB video driver [[default=y
                 DIRECTFB_LIBS=`$DIRECTFBCONFIG --libs`
                 video_directfb=yes
             fi
-            AC_MSG_RESULT($video_directfb)
         fi
+        if test x$video_directfb = xyes; then
+            # SuSE 11.1 installs directfb-config without directfb-devel
+            save_CFLAGS="$CFLAGS"
+            CFLAGS="$CFLAGS $DIRECTFB_CFLAGS"
+            AC_CHECK_HEADER(directfb.h, have_directfb_hdr=yes, have_directfb_hdr=no)
+            CFLAGS="$save_CFLAGS"
+            video_directfb=$have_directfb_hdr
+        fi
+        AC_MSG_CHECKING(for DirectFB $DIRECTFB_REQUIRED_VERSION support)
+        AC_MSG_RESULT($video_directfb)
 
         if test x$video_directfb = xyes; then
             AC_DEFINE(SDL_VIDEO_DRIVER_DIRECTFB)
@@ -1298,6 +1303,33 @@ AC_HELP_STRING([--enable-video-ps2gs], [use PlayStation 2 GS video driver [[defa
             have_video=yes
         fi
     fi
+}
+
+dnl See if we're running on PlayStation 3 Cell hardware
+CheckPS3()
+{
+  AC_ARG_ENABLE(video-ps3,
+                AC_HELP_STRING([--enable-video-ps3], [use PlayStation 3 Cell driver [[default=yes]]]),
+                , enable_video_ps3=yes)
+  if test x$enable_video = xyes -a x$enable_video_ps3 = xyes; then
+    AC_MSG_CHECKING(for PlayStation 3 Cell support)
+    video_ps3=no
+    AC_TRY_COMPILE([
+      #include <linux/fb.h>
+      #include <asm/ps3fb.h>
+    ],[
+    ],[
+      video_ps3=yes
+    ])
+    AC_MSG_RESULT($video_ps3)
+    if test x$video_ps3 = xyes; then
+      AC_DEFINE(SDL_VIDEO_DRIVER_PS3)
+      SOURCES="$SOURCES $srcdir/src/video/ps3/*.c"
+      EXTRA_CFLAGS="$EXTRA_CFLAGS -I/opt/cell/sdk/usr/include"
+      EXTRA_LDFLAGS="$EXTRA_LDFLAGS -lbilin_scaler_spu -lfb_writer_spu -lyuv2rgb_spu -L/opt/cell/sdk/usr/lib -lspe2"
+      have_video=yes
+    fi
+  fi
 }
 
 dnl Find the GGI includes
@@ -1437,6 +1469,38 @@ AC_HELP_STRING([--enable-video-aalib], [use AAlib video driver [[default=no]]]),
             SOURCES="$SOURCES $srcdir/src/video/aalib/*.c"
             EXTRA_LDFLAGS="$EXTRA_LDFLAGS -laa"
             have_video=yes
+        fi
+    fi
+}
+
+dnl Find the libcaca includes
+CheckCaca()
+{
+    AC_ARG_ENABLE(video-caca,
+AC_HELP_STRING([--enable-video-caca], [use libcaca video driver [[default=no]]]),
+                  , enable_video_caca=no)
+    if test x$enable_video = xyes -a x$enable_video_caca = xyes; then
+        video_caca=no
+        AC_PATH_PROG(CACACONFIG, caca-config, no)
+        if test x$CACACONFIG != xno; then
+            AC_MSG_CHECKING(for libcaca support)
+            CACA_CFLAGS=`$CACACONFIG --cflags`
+            CACA_LDFLAGS=`$CACACONFIG --libs`
+            save_CFLAGS="$CFLAGS"
+            AC_TRY_COMPILE([
+             #include <caca.h>
+            ],[
+            ],[
+             video_caca=yes
+            ])
+            CFLAGS="$save_CFLAGS"
+            AC_MSG_RESULT($video_caca)
+            if test x$video_caca = xyes; then
+                AC_DEFINE(SDL_VIDEO_DRIVER_CACA)
+                EXTRA_CFLAGS="$EXTRA_CFLAGS $CACA_CFLAGS"
+                EXTRA_LDFLAGS="$EXTRA_LDFLAGS $CACA_LDFLAGS"
+                SOURCES="$SOURCES $srcdir/src/video/caca/*.c"
+            fi
         fi
     fi
 }
@@ -1672,6 +1736,13 @@ AC_HELP_STRING([--enable-osmesa-shared], [dynamically load OSMesa OpenGL support
         fi
     fi
 }
+
+AC_ARG_ENABLE(screensaver,
+AC_HELP_STRING([--enable-screensaver], [enable screensaver by default while any SDL application is running [[default=no]]]),
+              , enable_screensaver=no)
+if test x$enable_screensaver = xno; then
+    AC_DEFINE(SDL_VIDEO_DISABLE_SCREENSAVER)
+fi
 
 dnl See if we can use the new unified event interface in Linux 2.4
 CheckInputEvents()
@@ -2006,10 +2077,6 @@ AC_HELP_STRING([--enable-sdl-dlopen], [use dlopen for shared object loading [[de
             AC_CHECK_LIB(c, dlopen, EXTRA_LDFLAGS="$EXTRA_LDFLAGS",
                AC_CHECK_LIB(dl, dlopen, EXTRA_LDFLAGS="$EXTRA_LDFLAGS -ldl",
                   AC_CHECK_LIB(ltdl, dlopen, EXTRA_LDFLAGS="$EXTRA_LDFLAGS -lltdl")))
-            AC_CHECK_LIB(dl, dlvsym, have_dlvsym=yes)
-            if test x$have_dlvsym = xyes; then
-                AC_DEFINE(HAVE_DLVSYM)
-            fi
             AC_DEFINE(SDL_LOADSO_DLOPEN)
             SOURCES="$SOURCES $srcdir/src/loadso/dlopen/*.c"
             have_loadso=yes
@@ -2257,11 +2324,13 @@ case "$host" in
         CheckFBCON
         CheckDirectFB
         CheckPS2GS
+        CheckPS3
         CheckGGI
         CheckSVGA
         CheckVGL
         CheckWscons
         CheckAAlib
+        CheckCaca
         CheckQtopia
         CheckPicoGUI
         CheckOpenGLX11
@@ -2456,7 +2525,50 @@ case "$host" in
         SDL_CFLAGS="$SDL_CFLAGS -Dmain=SDL_main"
         SDL_LIBS="-lmingw32 -lSDLmain $SDL_LIBS -mwindows"
         ;;
-    *-*-beos*)
+    *-wince*)
+        ARCH=win32
+        CheckDummyVideo
+        CheckDiskAudio
+        CheckDummyAudio
+        CheckWIN32
+        CheckNASM
+        SOURCES="$SOURCES $srcdir/src/video/gapi/*.c"
+        EXTRA_CFLAGS="$EXTRA_CFLAGS -D_WIN32_WCE=0x420"
+        if test x$enable_audio = xyes; then
+            AC_DEFINE(SDL_AUDIO_DRIVER_WAVEOUT)
+            SOURCES="$SOURCES $srcdir/src/audio/windib/*.c"
+            have_audio=yes
+        fi
+        # Set up files for the thread library
+        if test x$enable_threads = xyes; then
+            AC_DEFINE(SDL_THREAD_WIN32)
+            SOURCES="$SOURCES $srcdir/src/thread/win32/SDL_sysmutex.c"
+            SOURCES="$SOURCES $srcdir/src/thread/win32/SDL_syssem.c"
+            SOURCES="$SOURCES $srcdir/src/thread/win32/SDL_systhread.c"
+            SOURCES="$SOURCES $srcdir/src/thread/generic/SDL_syscond.c"
+            have_threads=yes
+        fi
+        # Set up files for the timer library
+        if test x$enable_timers = xyes; then
+            AC_DEFINE(SDL_TIMER_WINCE)
+            SOURCES="$SOURCES $srcdir/src/timer/wince/*.c"
+            EXTRA_LDFLAGS="$EXTRA_LDFLAGS -lcoredll -lmmtimer"
+            have_timers=yes
+        fi
+        # Set up files for the shared object loading library
+        if test x$enable_loadso = xyes; then
+            AC_DEFINE(SDL_LOADSO_WIN32)
+            SOURCES="$SOURCES $srcdir/src/loadso/win32/*.c"
+            have_loadso=yes
+        fi
+        # Set up the system libraries we need
+        EXTRA_LDFLAGS="$EXTRA_LDFLAGS -lcoredll -lcommctrl"
+        # The Win32 platform requires special setup
+        SDLMAIN_SOURCES="$srcdir/src/main/win32/*.c"
+        SDL_CFLAGS="$SDL_CFLAGS -Dmain=SDL_main -D_WIN32_WCE=0x420"
+        SDL_LIBS="-lSDLmain $SDL_LIBS"
+        ;;
+    *-*-beos* | *-*-haiku*)
         ARCH=beos
         ac_default_prefix=/boot/develop/tools/gnupro
         CheckDummyVideo
@@ -2499,8 +2611,16 @@ case "$host" in
         fi
         # Set up files for the shared object loading library
         if test x$enable_loadso = xyes; then
-            AC_DEFINE(SDL_LOADSO_BEOS)
-            SOURCES="$SOURCES $srcdir/src/loadso/beos/*.c"
+            case "$host" in
+                *-*-beos*)
+                    AC_DEFINE(SDL_LOADSO_BEOS)
+                    SOURCES="$SOURCES $srcdir/src/loadso/beos/*.c"
+                ;;
+                *-*-haiku*)
+                    AC_DEFINE(SDL_LOADSO_DLOPEN)
+                    SOURCES="$SOURCES $srcdir/src/loadso/dlopen/*.c"
+                ;;
+            esac    
             have_loadso=yes
         fi
         # The BeOS platform requires special setup.
@@ -2553,8 +2673,6 @@ case "$host" in
         if test x$enable_audio = xyes; then
             AC_DEFINE(SDL_AUDIO_DRIVER_COREAUDIO)
             SOURCES="$SOURCES $srcdir/src/audio/macosx/*.c"
-            AC_DEFINE(SDL_AUDIO_DRIVER_SNDMGR)
-            SOURCES="$SOURCES $srcdir/src/audio/macrom/*.c"
             have_audio=yes
         fi
         # Set up files for the joystick library
@@ -2585,8 +2703,8 @@ case "$host" in
             need_iokit_framework=yes
         fi
         if test x$enable_video_carbon = xyes -o x$enable_video_cocoa = xyes; then
-            # The Cocoa backend still needs Carbon, and the YUV code QuickTime
-            EXTRA_LDFLAGS="$EXTRA_LDFLAGS -Wl,-framework,QuickTime -Wl,-framework,ApplicationServices"
+            # The Cocoa backend still needs Carbon
+            EXTRA_LDFLAGS="$EXTRA_LDFLAGS -Wl,-framework,ApplicationServices"
             EXTRA_LDFLAGS="$EXTRA_LDFLAGS -Wl,-framework,Carbon"
         fi
         # If either the audio or CD driver is used, add the AudioUnit framework
@@ -2749,7 +2867,7 @@ case "$ARCH" in
     SDL_STATIC_LIBS="\${libdir}/libSDLmain.a \${libdir}/libSDL.a $EXTRA_LDFLAGS"
     ;;
   *)
-    SDL_STATIC_LIBS="$SDL_LIBS"
+    SDL_STATIC_LIBS="$SDL_LIBS $EXTRA_LDFLAGS"
     ;;
 esac
 

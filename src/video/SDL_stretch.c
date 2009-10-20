@@ -1,6 +1,6 @@
 /*
     SDL - Simple DirectMedia Layer
-    Copyright (C) 1997-2006 Sam Lantinga
+    Copyright (C) 1997-2009 Sam Lantinga
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -37,7 +37,9 @@
 #if ((defined(_MFC_VER) && defined(_M_IX86)/* && !defined(_WIN32_WCE) still needed? */) || \
      defined(__WATCOMC__) || \
      (defined(__GNUC__) && defined(__i386__))) && SDL_ASSEMBLY_ROUTINES
-#define USE_ASM_STRETCH
+/* There's a bug with gcc 4.4.1 and -O2 where srcp doesn't get the correct
+ * value after the first scanline.  FIXME? */
+/*#define USE_ASM_STRETCH*/
 #endif
 
 #ifdef USE_ASM_STRETCH
@@ -103,6 +105,13 @@ static int generate_rowbytes(int src_w, int dst_w, int bpp)
 		SDL_SetError("ASM stretch of %d bytes isn't supported\n", bpp);
 		return(-1);
 	}
+#ifdef HAVE_MPROTECT
+	/* Make the code writeable */
+	if ( mprotect(copy_row, sizeof(copy_row), PROT_READ|PROT_WRITE) < 0 ) {
+		SDL_SetError("Couldn't make copy buffer writeable");
+		return(-1);
+	}
+#endif
 	pos = 0x10000;
 	inc = (src_w << 16) / dst_w;
 	eip = copy_row;
@@ -128,8 +137,8 @@ static int generate_rowbytes(int src_w, int dst_w, int bpp)
 		return(-1);
 	}
 #ifdef HAVE_MPROTECT
-	/* Make the code executable */
-	if ( mprotect(copy_row, sizeof(copy_row), PROT_READ|PROT_WRITE|PROT_EXEC) < 0 ) {
+	/* Make the code executable but not writeable */
+	if ( mprotect(copy_row, sizeof(copy_row), PROT_READ|PROT_EXEC) < 0 ) {
 		SDL_SetError("Couldn't make copy buffer executable");
 		return(-1);
 	}

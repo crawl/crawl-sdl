@@ -1,6 +1,6 @@
 /*
     SDL - Simple DirectMedia Layer
-    Copyright (C) 1997-2006 Sam Lantinga
+    Copyright (C) 1997-2009 Sam Lantinga
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -63,6 +63,9 @@ extern int SDL_PrivateResize(int w, int h);
 extern int SDL_PrivateExpose(void);
 extern int SDL_PrivateQuit(void);
 extern int SDL_PrivateSysWMEvent(SDL_SysWMmsg *message);
+
+/* Used to clamp the mouse coordinates separately from the video surface */
+extern void SDL_SetMouseRange(int maxX, int maxY);
 
 /* Used by the activity event handler to remove mouse focus */
 extern void SDL_ResetMouse(void);

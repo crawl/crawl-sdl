@@ -1,6 +1,6 @@
 /*
     SDL - Simple DirectMedia Layer
-    Copyright (C) 1997-2006 Sam Lantinga
+    Copyright (C) 1997-2009 Sam Lantinga
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -2332,6 +2332,8 @@ static const struct blit_table normal_blit_4[] = {
       1, ConvertMMXpII32_16BGR555, ConvertMMX, NO_ALPHA },
     { 0x00FF0000,0x0000FF00,0x000000FF, 2, 0x0000001F,0x000003E0,0x00007C00,
       0, ConvertX86p32_16BGR555, ConvertX86, NO_ALPHA },
+    { 0x00FF0000,0x0000FF00,0x000000FF, 3, 0x00FF0000,0x0000FF00,0x000000FF,
+      1, ConvertMMXpII32_24RGB888, ConvertMMX, NO_ALPHA },
     { 0x00FF0000,0x0000FF00,0x000000FF, 3, 0x00FF0000,0x0000FF00,0x000000FF,
       0, ConvertX86p32_24RGB888, ConvertX86, NO_ALPHA },
     { 0x00FF0000,0x0000FF00,0x000000FF, 3, 0x000000FF,0x0000FF00,0x00FF0000,

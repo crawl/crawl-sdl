@@ -1,6 +1,6 @@
 /*
     SDL - Simple DirectMedia Layer
-    Copyright (C) 1997-2006 Sam Lantinga
+    Copyright (C) 1997-2009 Sam Lantinga
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -166,7 +166,7 @@ do {									   \
 } while(0)
 
 /* Assemble R-G-B values into a specified pixel format and store them */
-#ifdef __NDS__ // FIXME
+#ifdef __NDS__ /* FIXME */
 #define PIXEL_FROM_RGB(Pixel, fmt, r, g, b)				\
 {									\
 	Pixel = ((r>>fmt->Rloss)<<fmt->Rshift)|				\
@@ -180,7 +180,7 @@ do {									   \
 		((g>>fmt->Gloss)<<fmt->Gshift)|				\
 		((b>>fmt->Bloss)<<fmt->Bshift);				\
 }
-#endif // __NDS__ FIXME
+#endif /* __NDS__ FIXME */
 #define RGB565_FROM_RGB(Pixel, r, g, b)					\
 {									\
 	Pixel = ((r>>3)<<11)|((g>>2)<<5)|(b>>3);			\
@@ -330,7 +330,7 @@ do {									   \
 } while(0)
 
 /* FIXME: this isn't correct, especially for Alpha (maximum != 255) */
-#ifdef __NDS__ // FIXME
+#ifdef __NDS__ /* FIXME */
 #define PIXEL_FROM_RGBA(Pixel, fmt, r, g, b, a)				\
 {									\
 	Pixel = ((r>>fmt->Rloss)<<fmt->Rshift)|				\
@@ -346,7 +346,7 @@ do {									   \
 		((b>>fmt->Bloss)<<fmt->Bshift)|				\
 		((a>>fmt->Aloss)<<fmt->Ashift);				\
 }
-#endif // __NDS__ FIXME
+#endif /* __NDS__ FIXME */
 #define ASSEMBLE_RGBA(buf, bpp, fmt, r, g, b, a)			\
 {									\
 	switch (bpp) {							\
@@ -384,22 +384,9 @@ do {									   \
 /* Blend the RGB values of two Pixels based on a source alpha value */
 #define ALPHA_BLEND(sR, sG, sB, A, dR, dG, dB)	\
 do {						\
-	dR = (((sR-dR)*(A))>>8)+dR;		\
-	dG = (((sG-dG)*(A))>>8)+dG;		\
-	dB = (((sB-dB)*(A))>>8)+dB;		\
-} while(0)
-
-/* Blend the RGB values of two Pixels based on a source alpha value */
-#define ACCURATE_ALPHA_BLEND(sR, sG, sB, sA, dR, dG, dB)	\
-do {						\
-    unsigned tR, tG, tB, tA; \
-    tA = 255 - sA; \
-    tR = 1 + (sR * sA) + (dR * tA); \
-    dR = (tR + (tR >> 8)) >> 8; \
-    tG = 1 + (sG * sA) + (dG * tA); \
-    dG = (tG + (tG >> 8)) >> 8; \
-    tB = 1 + (sB * sA) + (dB * tA); \
-    dB = (tB + (tB >> 8)) >> 8; \
+	dR = (((sR-dR)*(A)+255)>>8)+dR;		\
+	dG = (((sG-dG)*(A)+255)>>8)+dG;		\
+	dB = (((sB-dB)*(A)+255)>>8)+dB;		\
 } while(0)
 
 

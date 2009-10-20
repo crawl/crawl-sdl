@@ -1,6 +1,6 @@
 /*
     SDL - Simple DirectMedia Layer
-    Copyright (C) 1997-2006 Sam Lantinga
+    Copyright (C) 1997-2009 Sam Lantinga
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -63,6 +63,9 @@ static VideoBootStrap *bootstrap[] = {
 #if SDL_VIDEO_DRIVER_PS2GS
 	&PS2GS_bootstrap,
 #endif
+#if SDL_VIDEO_DRIVER_PS3
+	&PS3_bootstrap,
+#endif
 #if SDL_VIDEO_DRIVER_GGI
 	&GGI_bootstrap,
 #endif
@@ -119,6 +122,9 @@ static VideoBootStrap *bootstrap[] = {
 #endif
 #if SDL_VIDEO_DRIVER_AALIB
 	&AALIB_bootstrap,
+#endif
+#if SDL_VIDEO_DRIVER_CACA
+	&CACA_bootstrap,
 #endif
 #if SDL_VIDEO_DRIVER_DUMMY
 	&DUMMY_bootstrap,
@@ -503,7 +509,9 @@ static void SDL_ClearSurface(SDL_Surface *surface)
 		SDL_Flip(surface);
 		SDL_FillRect(surface, NULL, black);
 	}
-	SDL_Flip(surface);
+	if (surface->flags&SDL_FULLSCREEN) {
+		SDL_Flip(surface);
+	}
 }
 
 /*
@@ -634,6 +642,7 @@ SDL_Surface * SDL_SetVideoMode (int width, int height, int bpp, Uint32 flags)
 	/* Reset the keyboard here so event callbacks can run */
 	SDL_ResetKeyboard();
 	SDL_ResetMouse();
+	SDL_SetMouseRange(width, height);
 	SDL_cursorstate &= ~CURSOR_USINGSW;
 
 	/* Clean up any previous video mode */
