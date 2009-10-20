@@ -40,6 +40,11 @@ Additional References:
 
 
 (Partial) History of PB/Xcode projects:
+2009-09-21 - Added 64-bit for Snow Leopard. 10.4 is the new minimum requirement.
+	Removed 'no X11' targets as 
+	new codebase will assume you have them. Also removed specific #defines
+	for X11, but needed to add search path to /usr/X11R6/include
+	
 2007-12-31 - Enabled strip -x in the Xcode settings and removed it 
 	from the Build DMG script.
 	Added a per-arch setting for the Deployment targets for OTHER_LDFLAGS_ppc

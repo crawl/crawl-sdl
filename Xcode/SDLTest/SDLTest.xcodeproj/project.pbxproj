@@ -12,18 +12,6 @@
 			buildConfigurationList = 001B599808BDB826006539E9 /* Build configuration list for PBXAggregateTarget "All" */;
 			buildPhases = (
 			);
-			buildSettings = {
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = "Build All";
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-			};
 			dependencies = (
 				003FA6A809400236000C53B3 /* PBXTargetDependency */,
 				BEC568010761D90600A33029 /* PBXTargetDependency */,
@@ -233,49 +221,7 @@
 		BEC5687A0761D90600A33029 /* libsdlmain.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BEC567FF0761D90600A33029 /* libsdlmain.a */; };
 /* End PBXBuildFile section */
 
-/* Begin PBXBuildStyle section */
-		0153847F006D83E07F000001 /* Development */ = {
-			isa = PBXBuildStyle;
-			buildSettings = {
-				COPY_PHASE_STRIP = NO;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				OPTIMIZATION_CFLAGS = "-O0";
-				OTHER_LDFLAGS = "\U0001";
-				ZERO_LINK = YES;
-			};
-			name = Development;
-		};
-		01538480006D83E07F000001 /* Deployment */ = {
-			isa = PBXBuildStyle;
-			buildSettings = {
-				COPY_PHASE_STRIP = YES;
-				DEBUGGING_SYMBOLS = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				OPTIMIZATION_CFLAGS = "-O3";
-				ZERO_LINK = NO;
-			};
-			name = Deployment;
-		};
-/* End PBXBuildStyle section */
-
 /* Begin PBXContainerItemProxy section */
-		002F332709CA0EEA00EBEB88 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 003FA63A093FFD41000C53B3 /* SDL.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 0014B9A809C0E585003A99D5;
-			remoteInfo = "Framework Without X11 Stuff (for those who didn't install the X11 headers with Xcode)";
-		};
-		002F332909CA0EEA00EBEB88 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 003FA63A093FFD41000C53B3 /* SDL.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 002F327609CA02D800EBEB88;
-			remoteInfo = "Static Library Without X11 Stuff (for those who didn't install the X11 headers with Xcode)";
-		};
 		002F337209CA14F900EBEB88 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 08FB7793FE84155DC02AAC07 /* Project object */;
@@ -862,7 +808,7 @@
 
 /* Begin PBXFileReference section */
 		002F338109CA14F900EBEB88 /* test.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = test.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		002F339709CA16BF00EBEB88 /* test.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = test.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		002F339709CA16BF00EBEB88 /* testblitspeed.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = testblitspeed.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		002F339A09CA17BC00EBEB88 /* testblitspeed.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; name = testblitspeed.c; path = ../../test/testblitspeed.c; sourceTree = SOURCE_ROOT; };
 		002F33A709CA188600EBEB88 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
 		002F33DB09CA19A600EBEB88 /* testdyngl.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = testdyngl.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1278,8 +1224,6 @@
 				003FA647093FFD41000C53B3 /* libSDLmain.a */,
 				003FA649093FFD41000C53B3 /* Standard DMG */,
 				003FA64B093FFD41000C53B3 /* Developer Extras Package */,
-				002F332809CA0EEA00EBEB88 /* SDL.framework */,
-				002F332A09CA0EEA00EBEB88 /* libSDL.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1381,7 +1325,7 @@
 				BEC567F50761D90600A33029 /* torturethread.app */,
 				BEC567FF0761D90600A33029 /* libsdlmain.a */,
 				002F338109CA14F900EBEB88 /* test.app */,
-				002F339709CA16BF00EBEB88 /* test.app */,
+				002F339709CA16BF00EBEB88 /* testblitspeed.app */,
 				002F33DB09CA19A600EBEB88 /* testdyngl.app */,
 				002F341209CA1BFF00EBEB88 /* testfile.app */,
 				002F343109CA1F0300EBEB88 /* testiconv.app */,
@@ -1634,27 +1578,6 @@
 			);
 			buildRules = (
 			);
-			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "\"/Library/Frameworks\"";
-				HEADER_SEARCH_PATHS = "\"/Library/Frameworks/SDL.framework/Headers\"";
-				INFOPLIST_FILE = "Info-testalpha__Upgraded_.plist";
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = (
-					"-framework",
-					SDL,
-					"-framework",
-					Cocoa,
-				);
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = testalpha;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-				WRAPPER_EXTENSION = app;
-			};
 			dependencies = (
 				002F337109CA14F900EBEB88 /* PBXTargetDependency */,
 			);
@@ -1676,34 +1599,13 @@
 			);
 			buildRules = (
 			);
-			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "\"/Library/Frameworks\"";
-				HEADER_SEARCH_PATHS = "\"/Library/Frameworks/SDL.framework/Headers\"";
-				INFOPLIST_FILE = "Info-testalpha__Upgraded_.plist";
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = (
-					"-framework",
-					SDL,
-					"-framework",
-					Cocoa,
-				);
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = testalpha;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-				WRAPPER_EXTENSION = app;
-			};
 			dependencies = (
 				002F338709CA16BF00EBEB88 /* PBXTargetDependency */,
 			);
 			name = testblitspeed;
 			productInstallPath = "$(USER_APPS_DIR)";
 			productName = testalpha;
-			productReference = 002F339709CA16BF00EBEB88 /* test.app */;
+			productReference = 002F339709CA16BF00EBEB88 /* testblitspeed.app */;
 			productType = "com.apple.product-type.application";
 		};
 		002F33CA09CA19A600EBEB88 /* testdyngl */ = {
@@ -1717,27 +1619,6 @@
 			);
 			buildRules = (
 			);
-			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "\"/Library/Frameworks\"";
-				HEADER_SEARCH_PATHS = "\"/Library/Frameworks/SDL.framework/Headers\"";
-				INFOPLIST_FILE = "Info-testalpha__Upgraded_.plist";
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = (
-					"-framework",
-					SDL,
-					"-framework",
-					Cocoa,
-				);
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = testalpha;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-				WRAPPER_EXTENSION = app;
-			};
 			dependencies = (
 				002F33CB09CA19A600EBEB88 /* PBXTargetDependency */,
 			);
@@ -1758,27 +1639,6 @@
 			);
 			buildRules = (
 			);
-			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "\"/Library/Frameworks\"";
-				HEADER_SEARCH_PATHS = "\"/Library/Frameworks/SDL.framework/Headers\"";
-				INFOPLIST_FILE = "Info-testalpha__Upgraded_.plist";
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = (
-					"-framework",
-					SDL,
-					"-framework",
-					Cocoa,
-				);
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = testalpha;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-				WRAPPER_EXTENSION = app;
-			};
 			dependencies = (
 				002F340209CA1BFF00EBEB88 /* PBXTargetDependency */,
 			);
@@ -1800,27 +1660,6 @@
 			);
 			buildRules = (
 			);
-			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "\"/Library/Frameworks\"";
-				HEADER_SEARCH_PATHS = "\"/Library/Frameworks/SDL.framework/Headers\"";
-				INFOPLIST_FILE = "Info-testalpha__Upgraded_.plist";
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = (
-					"-framework",
-					SDL,
-					"-framework",
-					Cocoa,
-				);
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = testalpha;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-				WRAPPER_EXTENSION = app;
-			};
 			dependencies = (
 				002F342109CA1F0300EBEB88 /* PBXTargetDependency */,
 			);
@@ -1842,27 +1681,6 @@
 			);
 			buildRules = (
 			);
-			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "\"/Library/Frameworks\"";
-				HEADER_SEARCH_PATHS = "\"/Library/Frameworks/SDL.framework/Headers\"";
-				INFOPLIST_FILE = "Info-testalpha__Upgraded_.plist";
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = (
-					"-framework",
-					SDL,
-					"-framework",
-					Cocoa,
-				);
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = testalpha;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-				WRAPPER_EXTENSION = app;
-			};
 			dependencies = (
 				002F343D09CA1FB300EBEB88 /* PBXTargetDependency */,
 			);
@@ -1883,27 +1701,6 @@
 			);
 			buildRules = (
 			);
-			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "\"/Library/Frameworks\"";
-				HEADER_SEARCH_PATHS = "\"/Library/Frameworks/SDL.framework/Headers\"";
-				INFOPLIST_FILE = "Info-testalpha__Upgraded_.plist";
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = (
-					"-framework",
-					SDL,
-					"-framework",
-					Cocoa,
-				);
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = testalpha;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-				WRAPPER_EXTENSION = app;
-			};
 			dependencies = (
 				002F345A09CA204F00EBEB88 /* PBXTargetDependency */,
 			);
@@ -1924,27 +1721,6 @@
 			);
 			buildRules = (
 			);
-			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "\"/Library/Frameworks\"";
-				HEADER_SEARCH_PATHS = "\"/Library/Frameworks/SDL.framework/Headers\"";
-				INFOPLIST_FILE = "Info-checkkeys__Upgraded_.plist";
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = (
-					"-framework",
-					SDL,
-					"-framework",
-					Cocoa,
-				);
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = checkkeys;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-				WRAPPER_EXTENSION = app;
-			};
 			dependencies = (
 				BEC568310761D90600A33029 /* PBXTargetDependency */,
 			);
@@ -1965,27 +1741,6 @@
 			);
 			buildRules = (
 			);
-			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "\"/Library/Frameworks/\"";
-				GCC_OPTIMIZATION_LEVEL = 0;
-				HEADER_SEARCH_PATHS = "\"/Library/Frameworks/SDL.framework/Headers\"";
-				INFOPLIST_FILE = "Info-graywin__Upgraded_.plist";
-				OTHER_LDFLAGS = (
-					"-framework",
-					SDL,
-					"-framework",
-					Cocoa,
-				);
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = graywin;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-				WRAPPER_EXTENSION = app;
-			};
 			dependencies = (
 				BEC568330761D90600A33029 /* PBXTargetDependency */,
 			);
@@ -2007,26 +1762,6 @@
 			);
 			buildRules = (
 			);
-			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "\"/Library/Frameworks\"";
-				HEADER_SEARCH_PATHS = "\"/Library/Frameworks/SDL.framework/Headers\"";
-				INFOPLIST_FILE = "Info-loopwave__Upgraded_.plist";
-				OTHER_LDFLAGS = (
-					"-framework",
-					SDL,
-					"-framework",
-					Cocoa,
-				);
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = loopwave;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-				WRAPPER_EXTENSION = app;
-			};
 			dependencies = (
 				BEC568350761D90600A33029 /* PBXTargetDependency */,
 			);
@@ -2048,27 +1783,6 @@
 			);
 			buildRules = (
 			);
-			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "\"/Library/Frameworks\"";
-				HEADER_SEARCH_PATHS = "\"/Library/Frameworks/SDL.framework/Headers\"";
-				INFOPLIST_FILE = "Info-testalpha__Upgraded_.plist";
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = (
-					"-framework",
-					SDL,
-					"-framework",
-					Cocoa,
-				);
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = testalpha;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-				WRAPPER_EXTENSION = app;
-			};
 			dependencies = (
 				BEC568370761D90600A33029 /* PBXTargetDependency */,
 			);
@@ -2089,27 +1803,6 @@
 			);
 			buildRules = (
 			);
-			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "\"/Library/Frameworks\"";
-				HEADER_SEARCH_PATHS = "\"/Library/Frameworks/SDL.framework/Headers\"";
-				INFOPLIST_FILE = "Info-testbitmap__Upgraded_.plist";
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = (
-					"-framework",
-					SDL,
-					"-framework",
-					Cocoa,
-				);
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = testbitmap;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-				WRAPPER_EXTENSION = app;
-			};
 			dependencies = (
 				BEC568390761D90600A33029 /* PBXTargetDependency */,
 			);
@@ -2130,27 +1823,6 @@
 			);
 			buildRules = (
 			);
-			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "\"/Library/Frameworks\"";
-				HEADER_SEARCH_PATHS = "\"/Library/Frameworks/SDL.framework/Headers\"";
-				INFOPLIST_FILE = "Info-testcdrom__Upgraded_.plist";
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = (
-					"-framework",
-					SDL,
-					"-framework",
-					Cocoa,
-				);
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = testcdrom;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-				WRAPPER_EXTENSION = app;
-			};
 			dependencies = (
 				BEC5683B0761D90600A33029 /* PBXTargetDependency */,
 			);
@@ -2171,27 +1843,6 @@
 			);
 			buildRules = (
 			);
-			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "\"/Library/Frameworks\"";
-				HEADER_SEARCH_PATHS = "\"/Library/Frameworks/SDL.framework/Headers\"";
-				INFOPLIST_FILE = "Info-testerror__Upgraded_.plist";
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = (
-					"-framework",
-					SDL,
-					"-framework",
-					Cocoa,
-				);
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = testerror;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-				WRAPPER_EXTENSION = app;
-			};
 			dependencies = (
 				BEC5683D0761D90600A33029 /* PBXTargetDependency */,
 			);
@@ -2213,27 +1864,6 @@
 			);
 			buildRules = (
 			);
-			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "\"/Library/Frameworks\"";
-				HEADER_SEARCH_PATHS = "\"/Library/Frameworks/SDL.framework/Headers\"";
-				INFOPLIST_FILE = "Info-testgamma__Upgraded_.plist";
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = (
-					"-framework",
-					SDL,
-					"-framework",
-					Cocoa,
-				);
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = testgamma;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-				WRAPPER_EXTENSION = app;
-			};
 			dependencies = (
 				BEC5683F0761D90600A33029 /* PBXTargetDependency */,
 			);
@@ -2254,30 +1884,6 @@
 			);
 			buildRules = (
 			);
-			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "\"/Library/Frameworks\"";
-				GCC_PREPROCESSOR_DEFINITIONS = HAVE_OPENGL;
-				HEADER_SEARCH_PATHS = "\"/Library/Frameworks/SDL.framework/Headers\"";
-				INFOPLIST_FILE = "Info-testgl__Upgraded_.plist";
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = (
-					"-framework",
-					SDL,
-					"-framework",
-					Cocoa,
-					"-framework",
-					OpenGL,
-				);
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = testgl;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-				WRAPPER_EXTENSION = app;
-			};
 			dependencies = (
 				BEC568410761D90600A33029 /* PBXTargetDependency */,
 			);
@@ -2298,27 +1904,6 @@
 			);
 			buildRules = (
 			);
-			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "\"/Library/Frameworks\"";
-				HEADER_SEARCH_PATHS = "\"/Library/Frameworks/SDL.framework/Headers\"";
-				INFOPLIST_FILE = "Info-testthread__Upgraded_.plist";
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = (
-					"-framework",
-					SDL,
-					"-framework",
-					Cocoa,
-				);
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = testthread;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-				WRAPPER_EXTENSION = app;
-			};
 			dependencies = (
 				BEC568430761D90600A33029 /* PBXTargetDependency */,
 			);
@@ -2339,27 +1924,6 @@
 			);
 			buildRules = (
 			);
-			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "\"/Library/Frameworks\"";
-				HEADER_SEARCH_PATHS = "\"/Library/Frameworks/SDL.framework/Headers\"";
-				INFOPLIST_FILE = "Info-testjoystick__Upgraded_.plist";
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = (
-					"-framework",
-					SDL,
-					"-framework",
-					Cocoa,
-				);
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = testjoystick;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-				WRAPPER_EXTENSION = app;
-			};
 			dependencies = (
 				BEC568450761D90600A33029 /* PBXTargetDependency */,
 			);
@@ -2380,27 +1944,6 @@
 			);
 			buildRules = (
 			);
-			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "\"/Library/Frameworks\"";
-				HEADER_SEARCH_PATHS = "\"/Library/Frameworks/SDL.framework/Headers\"";
-				INFOPLIST_FILE = "Info-testkeys__Upgraded_.plist";
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = (
-					"-framework",
-					SDL,
-					"-framework",
-					Cocoa,
-				);
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = testkeys;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-				WRAPPER_EXTENSION = app;
-			};
 			dependencies = (
 				BEC568470761D90600A33029 /* PBXTargetDependency */,
 			);
@@ -2421,27 +1964,6 @@
 			);
 			buildRules = (
 			);
-			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "\"/Library/Frameworks\"";
-				HEADER_SEARCH_PATHS = "\"/Library/Frameworks/SDL.framework/Headers\"";
-				INFOPLIST_FILE = "Info-testlock__Upgraded_.plist";
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = (
-					"-framework",
-					SDL,
-					"-framework",
-					Cocoa,
-				);
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = testlock;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-				WRAPPER_EXTENSION = app;
-			};
 			dependencies = (
 				BEC568490761D90600A33029 /* PBXTargetDependency */,
 			);
@@ -2463,27 +1985,6 @@
 			);
 			buildRules = (
 			);
-			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "\"/Library/Frameworks\"";
-				HEADER_SEARCH_PATHS = "\"/Library/Frameworks/SDL.framework/Headers\"";
-				INFOPLIST_FILE = "Info-testoverlay__Upgraded_.plist";
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = (
-					"-framework",
-					Cocoa,
-					"-framework",
-					SDL,
-				);
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = testoverlay;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-				WRAPPER_EXTENSION = app;
-			};
 			dependencies = (
 				BEC5684B0761D90600A33029 /* PBXTargetDependency */,
 			);
@@ -2505,27 +2006,6 @@
 			);
 			buildRules = (
 			);
-			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "\"/Library/Frameworks\"";
-				HEADER_SEARCH_PATHS = "\"/Library/Frameworks/SDL.framework/Headers\"";
-				INFOPLIST_FILE = "Info-testpalette__Upgraded_.plist";
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = (
-					"-framework",
-					SDL,
-					"-framework",
-					Cocoa,
-				);
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = testpalette;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-				WRAPPER_EXTENSION = app;
-			};
 			dependencies = (
 				BEC5684D0761D90600A33029 /* PBXTargetDependency */,
 			);
@@ -2546,27 +2026,6 @@
 			);
 			buildRules = (
 			);
-			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "\"/Library/Frameworks\"";
-				HEADER_SEARCH_PATHS = "\"/Library/Frameworks/SDL.framework/Headers\"";
-				INFOPLIST_FILE = "Info-testsem__Upgraded_.plist";
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = (
-					"-framework",
-					SDL,
-					"-framework",
-					Cocoa,
-				);
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = testsem;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-				WRAPPER_EXTENSION = app;
-			};
 			dependencies = (
 				BEC5684F0761D90600A33029 /* PBXTargetDependency */,
 			);
@@ -2588,29 +2047,6 @@
 			);
 			buildRules = (
 			);
-			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "\"/Library/Frameworks\"";
-				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
-				GCC_OPTIMIZATION_LEVEL = 3;
-				HEADER_SEARCH_PATHS = "\"/Library/Frameworks/SDL.framework/Headers\"";
-				INFOPLIST_FILE = "Info-testsprite__Upgraded_.plist";
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = (
-					"-framework",
-					SDL,
-					"-framework",
-					Cocoa,
-				);
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = testsprite;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-				WRAPPER_EXTENSION = app;
-			};
 			dependencies = (
 				BEC568510761D90600A33029 /* PBXTargetDependency */,
 			);
@@ -2631,27 +2067,6 @@
 			);
 			buildRules = (
 			);
-			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "\"/Library/Frameworks\"";
-				HEADER_SEARCH_PATHS = "\"/Library/Frameworks/SDL.framework/Headers\"";
-				INFOPLIST_FILE = "Info-testtimer__Upgraded_.plist";
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = (
-					"-framework",
-					SDL,
-					"-framework",
-					Cocoa,
-				);
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = testtimer;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-				WRAPPER_EXTENSION = app;
-			};
 			dependencies = (
 				BEC568530761D90600A33029 /* PBXTargetDependency */,
 			);
@@ -2672,27 +2087,6 @@
 			);
 			buildRules = (
 			);
-			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "\"/Library/Frameworks\"";
-				HEADER_SEARCH_PATHS = "\"/Library/Frameworks/SDL.framework/Headers\"";
-				INFOPLIST_FILE = "Info-testversion__Upgraded_.plist";
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = (
-					"-framework",
-					SDL,
-					"-framework",
-					Cocoa,
-				);
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = testversion;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-				WRAPPER_EXTENSION = app;
-			};
 			dependencies = (
 				BEC568570761D90600A33029 /* PBXTargetDependency */,
 			);
@@ -2713,28 +2107,6 @@
 			);
 			buildRules = (
 			);
-			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "\"/Library/Frameworks\"";
-				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
-				HEADER_SEARCH_PATHS = "\"/Library/Frameworks/SDL.framework/Headers\"";
-				INFOPLIST_FILE = "Info-testvidinfo__Upgraded_.plist";
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = (
-					"-framework",
-					SDL,
-					"-framework",
-					Cocoa,
-				);
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = testvidinfo;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-				WRAPPER_EXTENSION = app;
-			};
 			dependencies = (
 				BEC568590761D90600A33029 /* PBXTargetDependency */,
 			);
@@ -2756,27 +2128,6 @@
 			);
 			buildRules = (
 			);
-			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "\"/Library/Frameworks\"";
-				HEADER_SEARCH_PATHS = "\"/Library/Frameworks/SDL.framework/Headers\"";
-				INFOPLIST_FILE = "Info-testwin__Upgraded_.plist";
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = (
-					"-framework",
-					SDL,
-					"-framework",
-					Cocoa,
-				);
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = testwin;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-				WRAPPER_EXTENSION = app;
-			};
 			dependencies = (
 				BEC5685B0761D90600A33029 /* PBXTargetDependency */,
 			);
@@ -2798,28 +2149,6 @@
 			);
 			buildRules = (
 			);
-			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "\"/Library/Frameworks\"";
-				GCC_OPTIMIZATION_LEVEL = 0;
-				HEADER_SEARCH_PATHS = "\"/Library/Frameworks/SDL.framework/Headers\"";
-				INFOPLIST_FILE = "Info-testwm__Upgraded_.plist";
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = (
-					"-framework",
-					SDL,
-					"-framework",
-					Cocoa,
-				);
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = testwm;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-				WRAPPER_EXTENSION = app;
-			};
 			dependencies = (
 				BEC5685D0761D90600A33029 /* PBXTargetDependency */,
 			);
@@ -2840,27 +2169,6 @@
 			);
 			buildRules = (
 			);
-			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "\"/Library/Frameworks\"";
-				HEADER_SEARCH_PATHS = "\"/Library/Frameworks/SDL.framework/Headers\"";
-				INFOPLIST_FILE = "Info-threadwin__Upgraded_.plist";
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = (
-					"-framework",
-					SDL,
-					"-framework",
-					Cocoa,
-				);
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = threadwin;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-				WRAPPER_EXTENSION = app;
-			};
 			dependencies = (
 				BEC5685F0761D90600A33029 /* PBXTargetDependency */,
 			);
@@ -2881,27 +2189,6 @@
 			);
 			buildRules = (
 			);
-			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "\"/Library/Frameworks\"";
-				HEADER_SEARCH_PATHS = "\"/Library/Frameworks/SDL.framework/Headers\"";
-				INFOPLIST_FILE = "Info-torturethread__Upgraded_.plist";
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = (
-					"-framework",
-					SDL,
-					"-framework",
-					Cocoa,
-				);
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = torturethread;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-				WRAPPER_EXTENSION = app;
-			};
 			dependencies = (
 				BEC568610761D90600A33029 /* PBXTargetDependency */,
 			);
@@ -2922,25 +2209,6 @@
 			);
 			buildRules = (
 			);
-			buildSettings = {
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = libsdlmain_prefix.h;
-				HEADER_SEARCH_PATHS = "\"/Library/Frameworks/SDL.framework/Headers\"";
-				LIBRARY_STYLE = STATIC;
-				OTHER_CFLAGS = "";
-				OTHER_LIBTOOL_FLAGS = "";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = sdlmain;
-				REZ_EXECUTABLE = YES;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-			};
 			dependencies = (
 			);
 			name = "libsdlmain.a (Upgraded)";
@@ -2955,12 +2223,7 @@
 		08FB7793FE84155DC02AAC07 /* Project object */ = {
 			isa = PBXProject;
 			buildConfigurationList = 001B5A0C08BDB826006539E9 /* Build configuration list for PBXProject "SDLTest" */;
-			buildSettings = {
-			};
-			buildStyles = (
-				01538480006D83E07F000001 /* Deployment */,
-				0153847F006D83E07F000001 /* Development */,
-			);
+			compatibilityVersion = "Xcode 2.4";
 			hasScannedForEncodings = 1;
 			mainGroup = 08FB7794FE84155DC02AAC07 /* SDLTest */;
 			projectDirPath = "";
@@ -2970,6 +2233,7 @@
 					ProjectRef = 003FA63A093FFD41000C53B3 /* SDL.xcodeproj */;
 				},
 			);
+			projectRoot = "";
 			targets = (
 				BEC566920761D90300A33029 /* All */,
 				BEC566AB0761D90300A33029 /* checkkeys (Upgraded) */,
@@ -3009,20 +2273,6 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		002F332809CA0EEA00EBEB88 /* SDL.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = SDL.framework;
-			remoteRef = 002F332709CA0EEA00EBEB88 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		002F332A09CA0EEA00EBEB88 /* libSDL.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libSDL.a;
-			remoteRef = 002F332909CA0EEA00EBEB88 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
 		003FA643093FFD41000C53B3 /* SDL.framework */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.framework;
@@ -4546,7 +3796,7 @@
 				COPY_PHASE_STRIP = YES;
 				DEBUGGING_SYMBOLS = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				OPTIMIZATION_CFLAGS = "-O3";
+				GCC_OPTIMIZATION_LEVEL = 3;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
 				OTHER_REZFLAGS = "";
@@ -4569,9 +3819,9 @@
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				OPTIMIZATION_CFLAGS = "-O0";
 				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = " ";
+				OTHER_LDFLAGS = (
+				);
 				OTHER_REZFLAGS = "";
 				PRODUCT_NAME = "Build All";
 				SECTORDER_FLAGS = "";
@@ -4630,10 +3880,8 @@
 		001B5A0D08BDB826006539E9 /* Deployment */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = (
-					ppc,
-					i386,
-				);
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1)";
+				ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1 = "x86_64 i386 ppc";
 				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)/$(CONFIGURATION)";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SRCROOT)/../SDL/build/$(CONFIGURATION)",
@@ -4641,17 +3889,20 @@
 					/Library/Frameworks,
 				);
 				GCC_VERSION_i386 = 4.0;
-				GCC_VERSION_ppc = 3.3;
+				GCC_VERSION_ppc = 4.0;
+				GCC_VERSION_x86_64 = 4.2;
 				HEADER_SEARCH_PATHS = (
 					../../include,
 					"$(HOME)/Library/Frameworks/SDL.framework/Headers",
 					/Library/Frameworks/SDL.framework/Headers,
 				);
 				MACOSX_DEPLOYMENT_TARGET_i386 = 10.4;
-				MACOSX_DEPLOYMENT_TARGET_ppc = 10.2;
+				MACOSX_DEPLOYMENT_TARGET_ppc = 10.4;
+				MACOSX_DEPLOYMENT_TARGET_x86_64 = 10.6;
 				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 				SDKROOT_i386 = /Developer/SDKs/MacOSX10.4u.sdk;
 				SDKROOT_ppc = /Developer/SDKs/MacOSX10.4u.sdk;
+				SDKROOT_x86_64 = /Developer/SDKs/MacOSX10.6.sdk;
 				WARNING_CFLAGS = "-Wmost";
 				ZERO_LINK = NO;
 			};
@@ -4660,10 +3911,8 @@
 		001B5A0E08BDB826006539E9 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = (
-					ppc,
-					i386,
-				);
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1)";
+				ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1 = "x86_64 i386 ppc";
 				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)/$(CONFIGURATION)";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SRCROOT)/../SDL/build/$(CONFIGURATION)",
@@ -4671,17 +3920,20 @@
 					/Library/Frameworks,
 				);
 				GCC_VERSION_i386 = 4.0;
-				GCC_VERSION_ppc = 3.3;
+				GCC_VERSION_ppc = 4.0;
+				GCC_VERSION_x86_64 = 4.2;
 				HEADER_SEARCH_PATHS = (
 					../../include,
 					"$(HOME)/Library/Frameworks/SDL.framework/Headers",
 					/Library/Frameworks/SDL.framework/Headers,
 				);
 				MACOSX_DEPLOYMENT_TARGET_i386 = 10.4;
-				MACOSX_DEPLOYMENT_TARGET_ppc = 10.2;
+				MACOSX_DEPLOYMENT_TARGET_ppc = 10.4;
+				MACOSX_DEPLOYMENT_TARGET_x86_64 = 10.6;
 				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 				SDKROOT_i386 = /Developer/SDKs/MacOSX10.4u.sdk;
 				SDKROOT_ppc = /Developer/SDKs/MacOSX10.4u.sdk;
+				SDKROOT_x86_64 = /Developer/SDKs/MacOSX10.6.sdk;
 				WARNING_CFLAGS = "-Wmost";
 				ZERO_LINK = NO;
 			};
@@ -4690,10 +3942,8 @@
 		001B5A0F08BDB826006539E9 /* Default */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = (
-					ppc,
-					i386,
-				);
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1)";
+				ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1 = "x86_64 i386 ppc";
 				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)/$(CONFIGURATION)";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SRCROOT)/../SDL/build/$(CONFIGURATION)",
@@ -4701,17 +3951,20 @@
 					/Library/Frameworks,
 				);
 				GCC_VERSION_i386 = 4.0;
-				GCC_VERSION_ppc = 3.3;
+				GCC_VERSION_ppc = 4.0;
+				GCC_VERSION_x86_64 = 4.2;
 				HEADER_SEARCH_PATHS = (
 					../../include,
 					"$(HOME)/Library/Frameworks/SDL.framework/Headers",
 					/Library/Frameworks/SDL.framework/Headers,
 				);
 				MACOSX_DEPLOYMENT_TARGET_i386 = 10.4;
-				MACOSX_DEPLOYMENT_TARGET_ppc = 10.2;
+				MACOSX_DEPLOYMENT_TARGET_ppc = 10.4;
+				MACOSX_DEPLOYMENT_TARGET_x86_64 = 10.6;
 				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 				SDKROOT_i386 = /Developer/SDKs/MacOSX10.4u.sdk;
 				SDKROOT_ppc = /Developer/SDKs/MacOSX10.4u.sdk;
+				SDKROOT_x86_64 = /Developer/SDKs/MacOSX10.6.sdk;
 				WARNING_CFLAGS = "-Wmost";
 				ZERO_LINK = NO;
 			};
@@ -4748,7 +4001,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				INFOPLIST_FILE = "Info-testblitspeed.plist";
-				PRODUCT_NAME = test;
+				PRODUCT_NAME = testblitspeed;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Deployment;
@@ -4757,7 +4010,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				INFOPLIST_FILE = "Info-testblitspeed.plist";
-				PRODUCT_NAME = test;
+				PRODUCT_NAME = testblitspeed;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Development;
@@ -4766,7 +4019,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				INFOPLIST_FILE = "Info-testblitspeed.plist";
-				PRODUCT_NAME = test;
+				PRODUCT_NAME = testblitspeed;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Default;

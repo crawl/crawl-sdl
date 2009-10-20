@@ -13,19 +13,75 @@ SDL Mac OS X Developer Notes:
 This package contains:
 - SDL API Documentation
 - A variety of SDLMain and .Nib files to choose from
-- Xcode/Project Builder project templates
+- Xcode project templates
 
 
 SDL API Documentation:
-	We include both the HTML documentation and the man files. For 
-	the HTML documentation, we have previously been installing to 
-	/Develoepr/Documentation, but Apple explicitly says this is not 
-	intended for 3rd party documentation. Xcode installs/updates 
-	reserve the right and have been known to completely purge the 
-	/Developer directory before installation, so if you place stuff 
-	there, be aware that it could be deleted.
-	(Xcode 3.0 introduces support for 3rd-party documentation, but
-	we are still investigating the details.)
+	We include both the HTML documentation and the man files. 
+	And new to 1.2.14, we introduce an Xocde DocSet which 
+	is generated via Doxygen. These require Xcode 3.0 or greater.
+	
+	You will need to drill down into the XcodeDocSet directory 
+	from the  Documentation folder and find the 
+	org.libsdl.sdl.docset bundle. We recommend you copy this to:
+	
+	/Library/Developer/Shared/Documentation/DocSets
+
+	Again, this follows all the standard Xcode patterns 
+	described with the project templates (below). You may need 
+	to create the directories if they don't already exist. 
+	You may install it on a per-user basis. 
+	And you may target specific versions of Xcode 
+	in lieu of using the "Shared" directory.
+
+	To use, it is quite simple. Just bring up the Xcode 
+	Documentation Browser window (can be activated through 
+	the Xcode Help Menu) and start searching for something. 
+
+	If nothing is found on a legitimate search, verify that 
+	the SDL documentation is enabled by opening up the DocSet 
+	popup box below the toolbar in Snow Leopard. 
+	(In Leopard, the DocSets appear in the left-side panel.) 
+
+	Another handy trick is to use the mouse and Option-Double-Click 
+	on a function or keyword to bring up documentation on the 
+	selected item. Prior to Xcode 3.2 (Snow Leopard), this would 
+	jump you to the entry in the Xcode Documentation Browser.
+
+	However, in Xcode 3.2 (Snow Leopard), this behavior has been 
+	altered and you are now given a hovering connected popup box 
+	on the selected item (called Quick Help). Unfortunately, the 
+	Doxygen generated DocSet doesn't currently provide Quick Help 
+	information. You can either follow a link to the main 
+	Documentation Browser from the Quick Help, or alternatively, 
+	you can bypass Quick Help by using Command-Option-Double-Click 
+	instead of Option-Double-Click. (Please file feedback with both 
+	Doxygen and Apple to improve Quick Help integration.)
+
+
+	For those that want to tweak the documentation output, 
+	you can find my Doxyfile in the XcodeDocSet directory in 
+	the Xcode directory of the SDL source code base (and in this package). 
+
+	One of the most significant options is "Separate Member Pages" 
+	which I disable. When disabled, the documentation is about 6MB. 
+	When enabled, the documentation is closer to 1.6GB (yes gigabytes). 
+	Obviously, distribution will be really hard with sizes that huge 
+	so I disable the option.
+
+	I also disabled Dot because there didn't seem to be 
+	much benefit of generating graphs for public C functions.
+
+	One thing I would like to see is a CSS file that makes the 
+	Doxygen DocSet look more like the native Apple documentation 
+	style. Style sheets are outside my expertise so I am asking for 
+	contributions on this one. Meanwhile, I also request you send 
+	feedback to Doxygen and Apple about this issue too.
+
+
+	Finally for convenience, I have added a new shell script target 
+	to the Xcode project that builds SDL that refers to my Doxyfile 
+	and generate the DocSet we distribute.
 
 
 SDLMain:
@@ -44,9 +100,9 @@ SDLMain:
 	main SDL.dmg.
 	
 	
-Project Builder/Xocde Project Templates:
-	For convenience, we provide Project Templates for Xcode and 
-	Project Builder. Using Xcode is *not* a requirement for using 
+Xocde Project Templates:
+	For convenience, we provide Project Templates for Xcode. 
+	Using Xcode is *not* a requirement for using 
 	the SDL.framework. However, for newbies, we do recommend trying 
 	out the Xcode templates first (and work your way back to raw gcc 
 	if you desire), as the Xcode templates try to setup everything
@@ -55,36 +111,50 @@ Project Builder/Xocde Project Templates:
 	or the SDL FAQ.
 
 
-	Xcode 2.1+ users may use the templates in TemplatesForXcode folder.
-	Project Builder and Xcode <= 2.0 users will need to use the 
-	templates in TemplatesForProjectBuilder folder.
-
-	We have provided 4 different kinds of SDL templates for Xcode. 
+	We have provided 3 different kinds of SDL templates for Xcode and have 
+	a different set of templates for each version of Xcode (which generally 
+	correspond with a particular Mac OS X version). 
 	The installion directory depends on which version of Xcode you have.
+	(Note: These directories may not already exist on your system so you must create them yourself.)
 
-	For Leopard (Xcode 2.5, 3.0), we recommend you install to:
+	For Leopard and Snow Leopard (Xcode 2.5, 3+), we recommend you install to:
 	/Library/Application Support/Developer/Shared/Xcode/Project Templates/Application
 
 	For Xcode 1.0 to 2.4,
 	/Library/Application Support/Apple/Developer Tools/Project Templates/Appllcation 
 
-	For Project Builder,
-	/Developer/ProjectBuilder Extras
-
 
 	Also note you may place it in per-user locations, e.g.
-
 	~/Library/Application Support/Developer/Shared/Xcode/Project Templates/Application
 
+	
+	And for advanced users who have multiple versions of Xcode installed on a single system,
+	you may put each set in a directory with the Xcode version number instead of using "Shared", e.g.
+	/Library/Application Support/Developer/2.5/Xcode/Project Templates/Application
+	/Library/Application Support/Developer/3.1/Xcode/Project Templates/Application
+	/Library/Application Support/Developer/3.2/Xcode/Project Templates/Application
+
+
+	Copy each of the SDL/Xcode template directories into the correct location (e.g. "SDL OpenGL Application").
+	Do not copy our enclosing folder into the location (e.g. TemplatesForXcodeSnowLeopard).
+	So for example, in:
+	/Library/Application Support/Developer/Shared/Xcode/Project Templates/Application
+	you should have the 3 folders:
+	SDL Application
+	SDL Cocoa Application
+	SDL OpenGL Application
 
 
 	After doing this, when doing a File->New Project, you will see the 
 	projects under the Application category.
+	(Newer versions of Xcode have a separate section for User Templates and it will 
+	appear in the Application category of the User Templates section.)
+
 
 
 	How to create a new SDL project:
 
-	1. Open Xcode (or Project Builder)
+	1. Open Xcode
 	2. Select File->New Project
 	3. Select SDL Application
 	4. Name, Save, and Finish
@@ -95,12 +165,6 @@ Project Builder/Xocde Project Templates:
 	instead of /Library/Frameworks, you will need to update the 
 	location of the SDL.framework in the "Groups & Files" browser.
 	
-	** For Xcode users using Project Builder templates, you may 
-	want to convert the project to native Xcode targets since 
-	our current templates are Project Builder based. 
-	Go to the Menu->Project->Upgrade All Targets to Native
-
-
 
 	The project templates we provide are:
 	- SDL Application
@@ -115,12 +179,6 @@ Project Builder/Xocde Project Templates:
 		designed to run in Windowed mode, Mac users may appreciate 
 		having access to standard menus for things
 		like Preferences and Quiting (among other things).
-	
-	- SDL Custom Cocoa Application
-		This application demonstrates the integration of SDL with 
-		native Cocoa widgets. This shows how
-		you can get native Cocoa widgets like buttons, sliders, 
-		etc. to interact/integrate with your SDL application.
 		
 	- SDL OpenGL Application
 		This reuses the same SDLMain from the "SDL Application" 
@@ -128,21 +186,24 @@ Project Builder/Xocde Project Templates:
 		bring OpenGL into the mix.
 
 
+Special Notes:
+Only the 10.6 Snow Leopard templates (and later) will include 64-bit in the Universal Binary as 
+prior versions of OS X lacked the API support SDL requires for 64-bit to work correctly.
+To prevent 64-bit SDL executables from being launched on 10.5 Leopard, a special key has been set 
+in the Info.plist in our Snow Leopard SDL/Xcode templates.
 
 
-Project Builder/Xcode Tips and Tricks:
+Xcode Tips and Tricks:
 
 - Building from command line
-	Use pbxbuild in the same directory as your .pbproj file
-	(Xcode has xcodebuild)
+	Use the command line tool: xcodebuild (see man page)
 		 
 - Running your app
     You can send command line args to your app by either 
 	invoking it from the command line (in *.app/Contents/MacOS) 
 	or by entering them in the "Executables" panel of the target 
-	settings, or the "Executables" tab in the main window 
-	in Project Builder 2.0.
-    
+	settings.
+	
 - Working directory
     As defined in the SDLMain.m file, the working directory of 
     your SDL app is by default set to its parent. You may wish to 
@@ -162,6 +223,13 @@ Additional References:
 
 
 Partial History:
+2009-09-21 - CustomView template project was removed because it was broken by 
+	the removal of legacy Quicktime support while moving to 64-bit.
+	ProjectBuilder templates were removed.
+	Tiger, Leopard, and Snow Leopard Xcode templates were introduced instead of 
+	using a single common template due to the differences between the 3.
+	(Tiger used a chevron marker for substitution while Leopard/Snow Leopard use ___
+	and we need the 10.6 SDK for 64-bit.)
 
 2007-12-30 - Updated documentation to reflect new template paths in Leopard
 	Xcode. Added reference to OSG screencasts.
