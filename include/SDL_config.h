@@ -34,6 +34,8 @@
 #include "SDL_config_macosx.h"
 #elif defined(__SYMBIAN32__)
 #include "SDL_config_symbian.h"  /* must be before win32! */
+#elif defined(__LINUX__)
+#include "SDL_config_linux.h"
 #elif defined(__MINGW32__)
 #include "SDL_config_mingw.h"
 #elif defined(__WIN32__)

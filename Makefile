@@ -28,6 +28,8 @@ CC    ?= gcc
 RANLIB?= ranlib
 RM    ?= rm -f
 
+CFLAGS ?= -O2
+
 prefix ?= /usr/local
 libdir := $(prefix)/lib
 man3dir := $(prefix)/share/man/man3
@@ -57,7 +59,26 @@ SDL_SOURCES = \
 	src/timer/dummy/*.c \
 	src/loadso/dummy/*.c
 
-SDLMAIN_SOURCES =	
+SDLMAIN_SOURCES =
+
+ifeq ($(uname_S),Linux)
+SDL_SOURCES += \
+    src/audio/alsa/*.c \
+    src/audio/dma/*.c \
+    src/audio/dsp/*.c \
+    src/audio/esd/*.c \
+    src/cdrom/linux/*.c \
+    src/joystick/linux/*.c \
+    src/loadso/dlopen/*.c \
+    src/thread/pthread/*.c \
+    src/timer/unix/*.c \
+    src/video/dga/*.c \
+    src/video/fbcon/*.c \
+    src/video/Xext/*/*.c \
+    src/video/x11/*.c
+
+CFLAGS += -D_GNU_SOURCE -D_REENTRANT
+endif
 
 ifeq ($(uname_S),Darwin)
 SDL_SOURCES += \
@@ -97,7 +118,6 @@ MAN3_INST := $(patsubst docs/man3/%,$(man3dir)/%,$(MAN3_PAGES))
 SDL_OBJECTS := $(patsubst %.c,%.o,$(SDL_SOURCES))
 SDLMAIN_OBJECTS := $(patsubst %.c,%.o,$(SDLMAIN_SOURCES))
 
-CFLAGS ?= -O2
 CFLAGS += -I. -Iinclude -DNO_STDIO_REDIRECT
 
 .PHONY: install
