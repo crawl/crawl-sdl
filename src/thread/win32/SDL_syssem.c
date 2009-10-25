@@ -38,7 +38,7 @@ struct SDL_semaphore {
 #else
 	HANDLE id;
 #endif
-	Uint32 volatile count;
+	LONG volatile count;
 };
 
 

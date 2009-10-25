@@ -483,7 +483,7 @@ static char *unix_to_mac(const char *file)
 SDL_RWops *SDL_RWFromFile(const char *file, const char *mode)
 {
 	SDL_RWops *rwops = NULL;
-#ifdef HAVE_STDIO_H
+#if defined(HAVE_STDIO_H) && !defined(__WIN32__)
 	FILE *fp = NULL;
 #endif
 	if ( !file || !*file || !mode || !*mode ) {

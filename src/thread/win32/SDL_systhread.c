@@ -115,7 +115,7 @@ int SDL_SYS_CreateThread(SDL_Thread *thread, void *args)
 		thread->handle = (SYS_ThreadHandle) pfnBeginThread(NULL, 0, RunThread,
 				pThreadParms, 0, &threadid);
 	} else {
-		thread->handle = CreateThread(NULL, 0, RunThread, pThreadParms, 0, &threadid);
+		thread->handle = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)RunThread, pThreadParms, 0, (PDWORD)&threadid);
 	}
 	if (thread->handle == NULL) {
 		SDL_SetError("Not enough resources to create thread");
