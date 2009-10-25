@@ -10,7 +10,7 @@ ifndef V
 endif
 endif
 
-uname_S := $(shell uname -s)
+uname_S ?= $(shell uname -s)
 
 # Since Windows builds could be done with MinGW or Cygwin,
 # set a TARGET_OS_WINDOWS flag when either shows up.
