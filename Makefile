@@ -84,7 +84,8 @@ ifeq ($(uname_S),Darwin)
 SDL_SOURCES += \
     src/audio/macosx/*.c \
     src/cdrom/macosx/*.c \
-    src/loadso/macosx/*.c \
+    src/joystick/darwin/*.c \
+    src/loadso/dlopen/*.c \
     src/thread/pthread/*.c \
     src/timer/unix/*.c \
     src/video/quartz/*.m
@@ -115,8 +116,14 @@ HEADERS := $(shell echo $(HEADERS))
 
 HEADERS_INST := $(patsubst include/%,$(includedir)/%,$(HEADERS))
 MAN3_INST := $(patsubst docs/man3/%,$(man3dir)/%,$(MAN3_PAGES))
+
+# First handle .c files
 SDL_OBJECTS := $(patsubst %.c,%.o,$(SDL_SOURCES))
 SDLMAIN_OBJECTS := $(patsubst %.c,%.o,$(SDLMAIN_SOURCES))
+
+# Now .m files
+SDL_OBJECTS := $(patsubst %.m,%.o,$(SDL_OBJECTS))
+SDLMAIN_OBJECTS := $(patsubst %.m,%.o,$(SDLMAIN_OBJECTS))
 
 CFLAGS += -I. -Iinclude -DNO_STDIO_REDIRECT
 
@@ -155,4 +162,7 @@ $(SDLMAIN_LIB): $(SDLMAIN_OBJECTS)
 	$(QUIET_RANLIB)$(RANLIB) $@
 
 %.o: %.c
+	$(QUIET_CC)$(CC) $(CFLAGS) -o $@ -c $<
+
+%.o: %.m
 	$(QUIET_CC)$(CC) $(CFLAGS) -o $@ -c $<
