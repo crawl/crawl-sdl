@@ -149,7 +149,7 @@ $(man3dir)/%.3: docs/man3/%.3
 install: $(MAN3_INST) $(HEADERS_INST) $(libdir)/$(SDL_LIB) $(libdir)/$(SDLMAIN_LIB)
 
 clean:
-	$(RM) $(SDL_OBJECTS) $(SDLMAIN_OBJECTS) *.a
+	$(RM) $(SDL_OBJECTS) $(SDLMAIN_OBJECTS) *.a .cflags
 
 distclean: clean
 
@@ -161,8 +161,19 @@ $(SDLMAIN_LIB): $(SDLMAIN_OBJECTS)
 	$(QUIET_AR)$(AR) rcu $@ $^
 	$(QUIET_RANLIB)$(RANLIB) $@
 
-%.o: %.c
+%.o: %.c .cflags
 	$(QUIET_CC)$(CC) $(CFLAGS) -o $@ -c $<
 
-%.o: %.m
+%.o: %.m .cflags
 	$(QUIET_CC)$(CC) $(CFLAGS) -o $@ -c $<
+
+TRACK_CFLAGS = $(subst ','\'',$(CC) $(CFLAGS))
+
+.cflags: .force-cflags
+	@FLAGS='$(TRACK_CFLAGS)'; \
+    if test x"$$FLAGS" != x"`cat .cflags 2>/dev/null`" ; then \
+        echo "    * rebuilding sdl: new build flags or prefix"; \
+        echo "$$FLAGS" > .cflags; \
+    fi
+
+.PHONY: .force-cflags
