@@ -2,3 +2,4 @@ Xcode/SDL/build
 *.pbxuser
 *.perspectivev3
 *.[oa]
+.cflags
