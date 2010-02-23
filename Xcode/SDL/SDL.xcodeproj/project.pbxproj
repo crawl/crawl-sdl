@@ -1755,9 +1755,15 @@
 				HEADER_SEARCH_PATHS = /usr/X11R6/include;
 				INFOPLIST_FILE = "Info-Framework.plist";
 				INSTALL_PATH = "@executable_path/../Frameworks";
+				LIBRARY_SEARCH_PATHS = /usr/X11R6/lib;
 				OTHER_CFLAGS = "$(OTHER_CFLAGS_$(CURRENT_ARCH))";
 				OTHER_CFLAGS_i386 = "";
 				OTHER_CFLAGS_ppc = "";
+				OTHER_LDFLAGS = (
+					"-lX11",
+					"-lXext",
+					"-lXrandr",
+				);
 				PRODUCT_NAME = SDL;
 				WRAPPER_EXTENSION = framework;
 			};
@@ -1788,9 +1794,15 @@
 				HEADER_SEARCH_PATHS = /usr/X11R6/include;
 				INFOPLIST_FILE = "Info-Framework.plist";
 				INSTALL_PATH = "@executable_path/../Frameworks";
+				LIBRARY_SEARCH_PATHS = /usr/X11R6/lib;
 				OTHER_CFLAGS = "$(OTHER_CFLAGS_$(CURRENT_ARCH))";
 				OTHER_CFLAGS_i386 = "";
 				OTHER_CFLAGS_ppc = "";
+				OTHER_LDFLAGS = (
+					"-lX11",
+					"-lXext",
+					"-lXrandr",
+				);
 				OTHER_LDFLAGS_ppc = "-prebind -seg1addr 0x30000000";
 				PRODUCT_NAME = SDL;
 				WRAPPER_EXTENSION = framework;
@@ -1822,9 +1834,15 @@
 				HEADER_SEARCH_PATHS = /usr/X11R6/include;
 				INFOPLIST_FILE = "Info-Framework.plist";
 				INSTALL_PATH = "@executable_path/../Frameworks";
+				LIBRARY_SEARCH_PATHS = /usr/X11R6/lib;
 				OTHER_CFLAGS = "$(OTHER_CFLAGS_$(CURRENT_ARCH))";
 				OTHER_CFLAGS_i386 = "";
 				OTHER_CFLAGS_ppc = "";
+				OTHER_LDFLAGS = (
+					"-lX11",
+					"-lXext",
+					"-lXrandr",
+				);
 				PRODUCT_NAME = SDL;
 				WRAPPER_EXTENSION = framework;
 			};
@@ -2098,9 +2116,15 @@
 				HEADER_SEARCH_PATHS = /usr/X11R6/include;
 				INFOPLIST_FILE = "Info-Framework.plist";
 				INSTALL_PATH = "@executable_path/../Frameworks";
+				LIBRARY_SEARCH_PATHS = /usr/X11R6/lib;
 				OTHER_CFLAGS = "$(OTHER_CFLAGS_$(CURRENT_ARCH))";
 				OTHER_CFLAGS_i386 = "";
 				OTHER_CFLAGS_ppc = "";
+				OTHER_LDFLAGS = (
+					"-lX11",
+					"-lXext",
+					"-lXrandr",
+				);
 				OTHER_LDFLAGS_ppc = "-prebind -seg1addr 0x30000000";
 				PRODUCT_NAME = SDL;
 				WRAPPER_EXTENSION = framework;
@@ -2215,9 +2239,15 @@
 				HEADER_SEARCH_PATHS = /usr/X11R6/include;
 				INFOPLIST_FILE = "Info-Framework.plist";
 				INSTALL_PATH = "@executable_path/../Frameworks";
+				LIBRARY_SEARCH_PATHS = /usr/X11R6/lib;
 				OTHER_CFLAGS = "$(OTHER_CFLAGS_$(CURRENT_ARCH))";
 				OTHER_CFLAGS_i386 = "";
 				OTHER_CFLAGS_ppc = "";
+				OTHER_LDFLAGS = (
+					"-lX11",
+					"-lXext",
+					"-lXrandr",
+				);
 				PRODUCT_NAME = SDL;
 				WRAPPER_EXTENSION = framework;
 			};
@@ -2348,9 +2378,15 @@
 				HEADER_SEARCH_PATHS = /usr/X11R6/include;
 				INFOPLIST_FILE = "Info-Framework.plist";
 				INSTALL_PATH = "@executable_path/../Frameworks";
+				LIBRARY_SEARCH_PATHS = /usr/X11R6/lib;
 				OTHER_CFLAGS = "$(OTHER_CFLAGS_$(CURRENT_ARCH))";
 				OTHER_CFLAGS_i386 = "";
 				OTHER_CFLAGS_ppc = "";
+				OTHER_LDFLAGS = (
+					"-lX11",
+					"-lXext",
+					"-lXrandr",
+				);
 				OTHER_LDFLAGS_ppc = "-prebind -seg1addr 0x30000000";
 				PRODUCT_NAME = SDL;
 				WRAPPER_EXTENSION = framework;
@@ -2450,9 +2486,15 @@
 				HEADER_SEARCH_PATHS = /usr/X11R6/include;
 				INFOPLIST_FILE = "Info-Framework.plist";
 				INSTALL_PATH = "@executable_path/../Frameworks";
+				LIBRARY_SEARCH_PATHS = /usr/X11R6/lib;
 				OTHER_CFLAGS = "$(OTHER_CFLAGS_$(CURRENT_ARCH))";
 				OTHER_CFLAGS_i386 = "";
 				OTHER_CFLAGS_ppc = "";
+				OTHER_LDFLAGS = (
+					"-lX11",
+					"-lXext",
+					"-lXrandr",
+				);
 				PRODUCT_NAME = SDL;
 				WRAPPER_EXTENSION = framework;
 			};
