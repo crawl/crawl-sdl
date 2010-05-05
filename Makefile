@@ -154,10 +154,12 @@ clean:
 distclean: clean
 
 $(SDL_LIB): $(SDL_OBJECTS)
+	@$(RM) $@
 	$(QUIET_AR)$(AR) rcu $@ $^
 	$(QUIET_RANLIB)$(RANLIB) $@
 
 $(SDLMAIN_LIB): $(SDLMAIN_OBJECTS)
+	@$(RM) $@
 	$(QUIET_AR)$(AR) rcu $@ $^
 	$(QUIET_RANLIB)$(RANLIB) $@
 
