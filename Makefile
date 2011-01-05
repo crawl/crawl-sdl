@@ -86,6 +86,7 @@ SDL_SOURCES += \
     src/cdrom/macosx/*.c \
     src/joystick/darwin/*.c \
     src/loadso/dlopen/*.c \
+	src/loadso/macosx/*.c \
     src/thread/pthread/*.c \
     src/timer/unix/*.c \
     src/video/quartz/*.m
