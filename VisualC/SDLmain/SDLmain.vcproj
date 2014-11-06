@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="9.00"
 	Name="SDLmain"
 	ProjectGUID="{DA956FD3-E142-46F2-9DD5-C78BEBB56B7A}"
+	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
 		<Platform
@@ -18,8 +19,10 @@
 	<Configurations>
 		<Configuration
 			Name="Release|Win32"
+			OutputDirectory=".\Release"
+			IntermediateDirectory=".\Release"
 			ConfigurationType="4"
-			InheritedPropertySheets="..\..\..\Common.vsprops;..\..\..\Release.vsprops;..\..\..\LIB.vsprops"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC70.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			>
@@ -44,9 +47,11 @@
 				AdditionalIncludeDirectories="..\..\include,..\..\include\SDL"
 				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;WIN32,NDEBUG,_WINDOWS"
 				StringPooling="true"
+				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
 				PrecompiledHeaderFile=".\Release/SDLmain.pch"
+				WarningLevel="3"
 				CompileAs="0"
 			/>
 			<Tool
@@ -60,7 +65,6 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				SuppressStartupBanner="true"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -80,8 +84,10 @@
 		</Configuration>
 		<Configuration
 			Name="Release|x64"
+			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
+			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="4"
-			InheritedPropertySheets="..\..\..\Common.vsprops;..\..\..\Release.vsprops;..\..\..\LIB.vsprops"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC70.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			>
@@ -107,9 +113,11 @@
 				AdditionalIncludeDirectories="..\..\include,..\..\include\SDL"
 				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;WIN32,NDEBUG,_WINDOWS"
 				StringPooling="true"
+				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
 				PrecompiledHeaderFile=".\Release/SDLmain.pch"
+				WarningLevel="3"
 				CompileAs="0"
 			/>
 			<Tool
@@ -123,7 +131,6 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				SuppressStartupBanner="true"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -143,8 +150,10 @@
 		</Configuration>
 		<Configuration
 			Name="Release_NoSTDIO|Win32"
+			OutputDirectory=".\Release_NOSTDIO"
+			IntermediateDirectory=".\Release_NOSTDIO"
 			ConfigurationType="4"
-			InheritedPropertySheets="..\..\..\Common.vsprops;..\..\..\Release.vsprops;..\..\..\LIB.vsprops"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC70.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			>
@@ -169,9 +178,11 @@
 				AdditionalIncludeDirectories="..\..\include,..\..\include\SDL"
 				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;WIN32,NDEBUG,_WINDOWS,NO_STDIO_REDIRECT"
 				StringPooling="true"
+				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
 				PrecompiledHeaderFile=".\Release_NOSTDIO/SDLmain.pch"
+				WarningLevel="3"
 				CompileAs="0"
 			/>
 			<Tool
@@ -185,7 +196,6 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				SuppressStartupBanner="true"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -205,8 +215,10 @@
 		</Configuration>
 		<Configuration
 			Name="Release_NoSTDIO|x64"
+			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
+			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="4"
-			InheritedPropertySheets="..\..\..\Common.vsprops;..\..\..\Release.vsprops;..\..\..\LIB.vsprops"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC70.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			>
@@ -232,9 +244,11 @@
 				AdditionalIncludeDirectories="..\..\include,..\..\include\SDL"
 				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;WIN32,NDEBUG,_WINDOWS,NO_STDIO_REDIRECT"
 				StringPooling="true"
+				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
 				PrecompiledHeaderFile=".\Release_NOSTDIO/SDLmain.pch"
+				WarningLevel="3"
 				CompileAs="0"
 			/>
 			<Tool
@@ -248,7 +262,6 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				SuppressStartupBanner="true"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -268,8 +281,10 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|Win32"
+			OutputDirectory=".\Debug"
+			IntermediateDirectory=".\Debug"
 			ConfigurationType="4"
-			InheritedPropertySheets="..\..\..\Common.vsprops;..\..\..\Debug.vsprops;..\..\..\LIB.vsprops"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC70.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			>
@@ -293,8 +308,11 @@
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\include,..\..\include\SDL"
 				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;WIN32,_DEBUG,_WINDOWS"
+				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
 				PrecompiledHeaderFile=".\Debug/SDLmain.pch"
+				WarningLevel="3"
+				DebugInformationFormat="1"
 				CompileAs="0"
 			/>
 			<Tool
@@ -308,7 +326,6 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				SuppressStartupBanner="true"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -328,8 +345,10 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|x64"
+			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
+			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="4"
-			InheritedPropertySheets="..\..\..\Common.vsprops;..\..\..\Debug.vsprops;..\..\..\LIB.vsprops"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC70.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			>
@@ -354,8 +373,11 @@
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\include,..\..\include\SDL"
 				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;WIN32,_DEBUG,_WINDOWS"
+				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
 				PrecompiledHeaderFile=".\Debug/SDLmain.pch"
+				WarningLevel="3"
+				DebugInformationFormat="1"
 				CompileAs="0"
 			/>
 			<Tool
@@ -369,7 +391,6 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				SuppressStartupBanner="true"
 			/>
 			<Tool
 				Name="VCALinkTool"

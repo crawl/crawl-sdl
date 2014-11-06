@@ -66,7 +66,6 @@ SDL_SOURCES += \
     src/audio/alsa/*.c \
     src/audio/dma/*.c \
     src/audio/dsp/*.c \
-    src/audio/esd/*.c \
     src/cdrom/linux/*.c \
     src/joystick/linux/*.c \
     src/loadso/dlopen/*.c \
